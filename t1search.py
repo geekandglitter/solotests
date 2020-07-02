@@ -1,14 +1,23 @@
 """
-TODO:   
- 
+DISCUSS WITH MIKE:
+1. This really should be written entirely in OOP, possibly with unittest as a testing framework 
+2. From Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
+3. I haven't scratched the surface in how to log the results, but whatever I do will be too manual
+
+UPDATE FROM MIKE:
+
+- The developers do prefer headless, but not if it means you can't test the ENTER key, so maybe keep it Chrome and headed for now.
+- You can initiate a search by clicking the search icon in the search input box as well as by pressing enter, so that should be maybe 
+created as an additional test.
+- Running from the command line is OK, at least for now.
+- Creating a log as we discussed is fine, too.
+  
+
+TODO:    
 1. Logging format: search 1 pass/fail the fail message
 2. Continue with Colt's Modern Python 3 Bootcamp 
-3. Suggestions for test reports from https://stackoverflow.com/questions/10218679/seleniumpython-reporting:
-    To start building test reports on top of Selenium+Python, I would leverage the python unittest module.
-    You will get a basic sample in Selenium documentation here.
-    Then HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
-4. Page objects and unittest https://selenium-python.readthedocs.io/page-objects.html    
-5. Add exceptions such as NoSuchElementException
+3. Look into the free trial of Robot Framework or GhostInspector or Testcraft
+
 
 ## may or may not need these ### 
 from   selenium.webdriver.support.ui import Select
@@ -39,20 +48,20 @@ def chrome_setup(url):
     driver.get(url)          
     return driver # ignore the handshake errors   
 
-def simulate_search(driver):       
+def simulate_search(driver, keyword):       
     try:
         elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
     except (NoSuchElementException):
         print("Something went wrong. Search box not found. ")     
         driver.quit()
         sys.exit(1)
-    elem.send_keys("solosegment_monitoring_test")  
+    elem.send_keys(keyword)  
     elem.send_keys(Keys.ENTER)  
     return
 
-def verify_results(driver):    
+def verify_results(driver, keyword):    
     # 1. Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test       
-    if driver.current_url == "https://solosegment.com/?s=solosegment_monitoring_test":
+    if driver.current_url == f"https://solosegment.com/?s={keyword}":
         print("Found Search Results Page:", driver.current_url)  
 
     # 2. Check on the title 
@@ -83,8 +92,9 @@ def firefox_setup():
 def main():
     url = "https://solosegment.com/"      
     driver = chrome_setup(url)    
-    simulate_search(driver)     
-    verify_results(driver)     
+    keyword = "solo_search"
+    simulate_search(driver, keyword)     
+    verify_results(driver, keyword)     
     tear_down(driver)
     send_results()
      
