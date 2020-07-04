@@ -3,8 +3,6 @@ DISCUSS WITH MIKE:
 1. Should all errors go to the log file?
 
 
-
-
 NOTES:
 1. This really should be written entirely in OOP, possibly with unittest as a testing framework 
 2. From Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
@@ -13,7 +11,7 @@ https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
 4. Logging format: search 1 pass/fail the fail message. All the tests go into one log file
 TODO:    
 1. Continue with Colt's Modern Python 3 Bootcamp   
-4. Add firefox code
+ 
  
 
 ## may or may not need these ### 
@@ -35,6 +33,7 @@ import logging
 import unittest
 import sys
 from datetime import datetime
+from selenium.webdriver.firefox.options import Options
 
 def chrome_setup(url): 
     """Chromedriver does not currently work with sendkeys in headless mode. See
@@ -44,6 +43,15 @@ def chrome_setup(url):
     options.add_argument("--ignore-certificate-errors")   
     driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)
     driver.get(url)          
+    return driver # ignore the handshake errors   
+
+def firefox_setup(url):
+    """Consider using firefox for sendkeys with headless. (Firefox driver is called GeckoDriver)"""  
+    options = Options()
+    options.headless = True
+    driver = webdriver.Firefox(executable_path='c:\\data\\geckodriver\\geckodriver.exe', options=options)
+    driver.get(url)          
+    print ("Headless Firefox Initialized")
     return driver # ignore the handshake errors   
 
 def simulate_search_enter(driver, keyword):      
@@ -78,7 +86,9 @@ def simulate_search_icon(driver, keyword):
     return    
 
 def verify_url(driver,keyword):       
-    """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""       
+    """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
+    time.sleep(1) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#
+    
     msg = "Pass\n"
     if driver.current_url != f"https://solosegment.com/?s={keyword}":    
         msg = f"Fail:\n{driver.current_url} is not the search results page\n"
@@ -93,19 +103,19 @@ def tear_down(driver):
     return
 
 def send_results(msg):
-    with open("t1log.txt","a+") as f:     
+    with open("t1log.txt","a+") as f:  
+        f.write("\n\n")      
         f.write(f"{datetime.now(tz=None)}\n")
         f.write("Search 1\n")
         f.write(msg)  
-        f.write("\n\n")        
+             
  
 
-def firefox_setup():
-    """Consider using firefox for sendkeys with headless. (Firefox driver is called GeckoDriver)"""  
 
 def main():
     url = "https://solosegment.com/"      
-    driver = chrome_setup(url)    
+    #driver = chrome_setup(url)    
+    driver = firefox_setup(url)    
     keyword = "solo_search"
     simulate_search_enter(driver, keyword)  
     simulate_search_icon(driver, keyword)   
