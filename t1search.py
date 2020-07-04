@@ -2,21 +2,14 @@
 DISCUSS WITH MIKE:
 1. This really should be written entirely in OOP, possibly with unittest as a testing framework 
 2. From Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
-3. I haven't scratched the surface in how to log the results, but whatever I do will be too manual
-4. Is one log for repeated running of this one test? Do the results accumulate? Different log for the next Trello card?
-5. Best practices for updating the log file -- whree in my code do I do that? 
-
-  
-
+3. I haven't scratched the surface in how to log the results, but whatever I do will be too manual 
+https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
 TODO:    
-1. Logging format: search 1 pass/fail the fail message
-2. Continue with Colt's Modern Python 3 Bootcamp 
-3. Look into the free trial of Robot Framework or GhostInspector or Testcraft
+1. Logging format: search 1 pass/fail the fail message. All the tests go into one log file
+2. Continue with Colt's Modern Python 3 Bootcamp  
+3. Modularize the second check and refactor it to look in page source
 4. Add firefox code
 5. Fix the open file code to be OPEN WITH
-6. Mike said: You can initiate a search by clicking the search icon in the search input box as well as by pressing enter, 
-    so that should be maybe created as an additional test
-
 
 ## may or may not need these ### 
 from   selenium.webdriver.support.ui import Select
@@ -36,6 +29,7 @@ from selenium.common.exceptions import NoSuchElementException
 import logging
 import unittest
 import sys
+from datetime import datetime
 
 def chrome_setup(url): 
     """Chromedriver does not currently work with sendkeys in headless mode. See
@@ -47,7 +41,8 @@ def chrome_setup(url):
     driver.get(url)          
     return driver # ignore the handshake errors   
 
-def simulate_search(driver, keyword):       
+def simulate_search_enter(driver, keyword):      
+    """Simulate search by clicking enter""" 
     try:
         elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
     except (NoSuchElementException):
@@ -58,29 +53,36 @@ def simulate_search(driver, keyword):
     elem.send_keys(Keys.ENTER)  
     return
 
-def verify_results(driver, keyword):
-       
-    # 1. Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test       
-    if driver.current_url == f"https://solosegment.com/?s={keyword}":
-        msg_url =f"Found Search Results Page: {driver.current_url}"
-    else: 
-        msg_url = f"Did not find Search Results Page: https://solosegment.com/?s={keyword}"    
-
-    # 2. Check on the title 
-    driver.implicitly_wait(10)
+def simulate_search_icon(driver, keyword):       
+    """Simulate search by clicking the search icon"""
     try:
-        expected_xpath = '//*[@id="ss-search-title"]/h2'
-        elem = driver.find_element(By.XPATH, expected_xpath )  # We are looking inside the search results page 
+        elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
     except (NoSuchElementException):
-        print(f"Did not find the expected XPATH {expected_xpath} on the page.")  
+        print("Something went wrong. Search box not found. "  )   
         driver.quit()
         sys.exit(1)
-    if elem.text == "Search Results":
-        msg_elem = f"Found Search Title: '{elem.text}'"     
-        
-    else: 
-        msg_elem = f"Did not find search title '{elem.text}'' "      
-    return msg_url, msg_elem
+
+    elem.send_keys(keyword) 
+    elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/input')
+    webdriver.ActionChains(driver).move_to_element(elem).perform()  # perform moves the mouse now
+    #time.sleep(20)
+    elem.click()          
+    return    
+
+def verify_url(driver,keyword):       
+    """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""       
+    msg = "Pass\n"
+    if driver.current_url != f"https://solosegment.com/?s={keyword}":    
+        msg = f"Fail:\n{driver.current_url} is not the search results page\n"
+    return msg    
+#def verify_title(driver,keyword):
+    """As an extra check, verify that the title "Search Results" is on the page"""      
+    #assert "Search Results" in driver.page_source    # just added this as an alternative to the if below it
+    #if  "Search Results" in driver.page_source:
+        #msg_elem = f"Found the search title: 'Search Results'"             
+    #else: 
+        #msg_elem = f"Did not find search title: 'Search Results'"      
+    #return msg_elem
 
 def tear_down(driver): 
     time.sleep(20) # this just keeps the head up for 20 seconds
@@ -88,9 +90,11 @@ def tear_down(driver):
     driver.quit() # do not use driver.close()    
     return
 
-def send_results(msg_url, msg_elem):
-    f= open("t1log.txt","w+")
-    f.write(f" {msg_url} \n {msg_elem}" )         
+def send_results(msg):
+    f= open("t1log.txt","a+")
+    f.write(f"{datetime.now(tz=None)}\n")
+    f.write("Search 1\n")
+    f.write(msg)          
     f.close()
 
 def firefox_setup():
@@ -100,10 +104,12 @@ def main():
     url = "https://solosegment.com/"      
     driver = chrome_setup(url)    
     keyword = "solo_search"
-    simulate_search(driver, keyword)     
-    msg_url, msg_elem = verify_results(driver, keyword)     
+    simulate_search_enter(driver, keyword)  
+    #simulate_search_icon(driver, keyword)   
+    msg = verify_url(driver, keyword) 
+    #msg_elem = verify_title(driver, keyword)      
     tear_down(driver)
-    send_results(msg_url, msg_elem)
+    send_results(msg)
      
 
 if __name__=="__main__":
