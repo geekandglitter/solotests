@@ -1,15 +1,20 @@
 """
 DISCUSS WITH MIKE:
+1. Should all errors go to the log file?
+
+
+
+
+NOTES:
 1. This really should be written entirely in OOP, possibly with unittest as a testing framework 
 2. From Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
 3. I haven't scratched the surface in how to log the results, but whatever I do will be too manual 
 https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
+4. Logging format: search 1 pass/fail the fail message. All the tests go into one log file
 TODO:    
-1. Logging format: search 1 pass/fail the fail message. All the tests go into one log file
-2. Continue with Colt's Modern Python 3 Bootcamp  
-3. Modularize the second check and refactor it to look in page source
+1. Continue with Colt's Modern Python 3 Bootcamp   
 4. Add firefox code
-5. Fix the open file code to be OPEN WITH
+ 
 
 ## may or may not need these ### 
 from   selenium.webdriver.support.ui import Select
@@ -46,7 +51,7 @@ def simulate_search_enter(driver, keyword):
     try:
         elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
     except (NoSuchElementException):
-        print("Something went wrong. Search box not found. "  )   
+        print("Something went wrong. Search box not found for search enter test."  )   
         driver.quit()
         sys.exit(1)
     elem.send_keys(keyword)  
@@ -58,14 +63,17 @@ def simulate_search_icon(driver, keyword):
     try:
         elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
     except (NoSuchElementException):
-        print("Something went wrong. Search box not found. "  )   
+        print("Something went wrong. Search box not found for search icon test."  )   
         driver.quit()
         sys.exit(1)
 
+    for i in range(0, len(keyword)):    
+        elem.send_keys(Keys.BACKSPACE)  # get the old search term out of there
+        i += 1    
+
     elem.send_keys(keyword) 
     elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/input')
-    webdriver.ActionChains(driver).move_to_element(elem).perform()  # perform moves the mouse now
-    #time.sleep(20)
+    webdriver.ActionChains(driver).move_to_element(elem).perform()  # perform moves the mouse now     
     elem.click()          
     return    
 
@@ -75,14 +83,8 @@ def verify_url(driver,keyword):
     if driver.current_url != f"https://solosegment.com/?s={keyword}":    
         msg = f"Fail:\n{driver.current_url} is not the search results page\n"
     return msg    
-#def verify_title(driver,keyword):
-    """As an extra check, verify that the title "Search Results" is on the page"""      
-    #assert "Search Results" in driver.page_source    # just added this as an alternative to the if below it
-    #if  "Search Results" in driver.page_source:
-        #msg_elem = f"Found the search title: 'Search Results'"             
-    #else: 
-        #msg_elem = f"Did not find search title: 'Search Results'"      
-    #return msg_elem
+ 
+ 
 
 def tear_down(driver): 
     time.sleep(20) # this just keeps the head up for 20 seconds
@@ -91,11 +93,12 @@ def tear_down(driver):
     return
 
 def send_results(msg):
-    f= open("t1log.txt","a+")
-    f.write(f"{datetime.now(tz=None)}\n")
-    f.write("Search 1\n")
-    f.write(msg)          
-    f.close()
+    with open("t1log.txt","a+") as f:     
+        f.write(f"{datetime.now(tz=None)}\n")
+        f.write("Search 1\n")
+        f.write(msg)  
+        f.write("\n\n")        
+ 
 
 def firefox_setup():
     """Consider using firefox for sendkeys with headless. (Firefox driver is called GeckoDriver)"""  
@@ -105,9 +108,8 @@ def main():
     driver = chrome_setup(url)    
     keyword = "solo_search"
     simulate_search_enter(driver, keyword)  
-    #simulate_search_icon(driver, keyword)   
-    msg = verify_url(driver, keyword) 
-    #msg_elem = verify_title(driver, keyword)      
+    simulate_search_icon(driver, keyword)   
+    msg = verify_url(driver, keyword)          
     tear_down(driver)
     send_results(msg)
      
