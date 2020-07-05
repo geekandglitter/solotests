@@ -1,4 +1,3 @@
- 
 
 """
  
@@ -8,9 +7,7 @@ NOTES:
 3. I haven't scratched the surface in how to log the results, but whatever I do will be too manual 
 https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
 4. Logging format: search 1 pass/fail the fail message. All the tests go into one log file
-TODO:    
-1. Continue with Colt's Modern Python 3 Bootcamp   
- 
+
  
 ## may or may not need these ### 
 from   selenium.webdriver.support.ui import Select
@@ -39,26 +36,48 @@ def chrome_setup(url):
     """      
     options = webdriver.ChromeOptions()
     options.add_argument("--ignore-certificate-errors")   
-    driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)
-    driver.get(url)          
+    try:
+        driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)
+    except (NoSuchElementException):
+        logging.info(f"{datetime.now(tz=None)} Chromedriver not found. Process terminated.")    
+        driver.quit()
+        sys.exit(1) 
+    try:
+        driver.get(url)    
+        logging.info(f"{datetime.now(tz=None)} URL {url} found.") 
+    except (NoSuchElementException):
+        logging.info(f"{datetime.now(tz=None)} URL {url} not found. Process terminated.")    
+        driver.quit()
+        sys.exit(1)          
     return driver # ignore the handshake errors   
 
 def firefox_setup(url):
     """Consider using firefox for sendkeys with headless. (Firefox driver is called GeckoDriver)"""  
     options = Options()
     options.headless = True
-    driver = webdriver.Firefox(executable_path='c:\\data\\geckodriver\\geckodriver.exe', options=options)
-    driver.get(url)          
-    print ("Headless Firefox Initialized")
+    try:
+        driver = webdriver.Firefox(executable_path='c:\\data\\geckodriver\\geckodriver.exe', options=options)
+    except (NoSuchElementException):
+        logging.info(f"{datetime.now(tz=None)} Geckodriver not found. Process terminated.")    
+        driver.quit()
+        sys.exit(1)     
+    try:
+        driver.get(url) 
+        logging.info(f"{datetime.now(tz=None)} URL {url} found.") 
+        logging.info(f"{datetime.now(tz=None)} Headless Firefox Initialized") 
+    except (NoSuchElementException):
+        logging.info(f"{datetime.now(tz=None)} URL {url} not found. Process terminated.")    
+        driver.quit()
+        sys.exit(1)               
     return driver # ignore the handshake errors   
 
 def simulate_search_enter(driver, keyword):      
     """Simulate search by clicking enter""" 
     try:
+        logging.info(f"{datetime.now(tz=None)} Starting search box for ENTER simulation")   
         elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
-
     except (NoSuchElementException):
-        print("Something went wrong. Search box not found for search enter test."  )   
+        logging.info(f"{datetime.now(tz=None)} Search box not found")    
         driver.quit()
         sys.exit(1)
     elem.send_keys(keyword)  
@@ -67,14 +86,14 @@ def simulate_search_enter(driver, keyword):
 
 def simulate_search_icon(driver, keyword):       
     """Simulate search by clicking the search icon"""     
-    try:
-        elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
 
+    try:
+        logging.info(f"{datetime.now(tz=None)} Starting search box for ICON simulation") 
+        elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
     except (NoSuchElementException):
-        print("Something went wrong. Search box not found for search icon test."  )   
+        logging.info(f"{datetime.now(tz=None)} Search box not found")       
         driver.quit()
-        sys.exit(1)
-  
+        sys.exit(1)  
 
     elem.send_keys(keyword) 
     elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/input')
@@ -84,58 +103,55 @@ def simulate_search_icon(driver, keyword):
 
 def verify_url(driver,keyword):       
     """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
-    time.sleep(1) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#
+    time.sleep(1) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#    
     
-    msg = "Pass\n"
-    if driver.current_url != f"https://solosegment.com/?s={keyword}":    
-        msg = f"Fail:\n{driver.current_url} is not the search results page\n"
-    return msg    
- 
- 
+    if driver.current_url == f"https://solosegment.com/?s={keyword}":           
+        logging.info(f"{datetime.now(tz=None)} Pass")  
+    else: 
+        logging.info(f"{datetime.now(tz=None)} Fail: {driver.current_url} is not the search results page.")           
+    return      
 
 def tear_down(driver):  
     driver.set_page_load_timeout(20) # This helps prevent Error reading broker pipe 
-    driver.quit() # do not use driver.close()    
-    return
-
-def send_results(msg):
-    with open("t1log.txt","a+") as f:  
-        f.write("\n\n")      
-        f.write(f"{datetime.now(tz=None)}\n")
-        f.write("Search 1\n")
-        f.write(msg)  
-             
- 
+    driver.quit() # do not use driver.close()   
+    logging.info(f"{datetime.now(tz=None)} Driver closed") 
+    return        
 
 
 def main():
     url = "https://solosegment.com/"      
     keyword = "solo_search"  
+    logging.basicConfig(filename='searchtest.log', level=logging.INFO) 
+    logging.info('\n')
 
+    logging.info(f"{datetime.now(tz=None)} Search 1 Firefox")
     driver = firefox_setup(url)
     simulate_search_enter(driver, keyword)  
     msg = verify_url(driver, keyword)          
     tear_down(driver)
-
+    logging.info("\n")
+    
+    logging.info(f"{datetime.now(tz=None)} Search 2 Firefox")
     driver = firefox_setup(url)
     simulate_search_icon(driver, keyword)   
     msg = verify_url(driver, keyword)          
     tear_down(driver)
+    logging.info("\n")
 
+    logging.info(f"{datetime.now(tz=None)} Search 1 Chrome")
     driver = chrome_setup(url)   
     simulate_search_enter(driver, keyword) 
     msg = verify_url(driver, keyword) 
     tear_down(driver)
+    logging.info("\n")
 
+    logging.info(f"{datetime.now(tz=None)} Search 2 Chrome")
     driver = chrome_setup(url)
     simulate_search_icon(driver, keyword) 
     msg = verify_url(driver, keyword)          
     tear_down(driver)
-
-
-
-    send_results(msg)
-     
+    logging.info("\n")
+    
 
 if __name__=="__main__":
     main()
@@ -162,5 +178,4 @@ driver.desired_capabilities
 // FULL XPATH
 /html/body/div[1]/header/div[1]/div/div/div/div[2]/div/form/label/input
 '''
- 
  
