@@ -39,6 +39,8 @@ import requests
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By  
+from selenium.webdriver.firefox.options import Options
+from selenium.common.exceptions import WebDriverException
 
 class Search():
 
@@ -49,9 +51,9 @@ class Search():
         """This returns better information for the developer when he tries printing the instance"""
         return self.url 
 
-    def setUp(self, url):
-        try:
-            # Do  I need a message here because the driver IS found?
+    def setUpchrome(self, url):
+        logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for chromedriver")  
+        try:            
             self.driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe")   
             logging.info(f"{datetime.now(tz=None)} Search Chrome Info Chromedriver found")  
         except (WebDriverException):
@@ -62,12 +64,35 @@ class Search():
             if resp.status_code == 200:                
                 self.driver.get(self.url)
             logging.info(f"{datetime.now(tz=None)} Search Chrome Info {url} found")      
-        except:
-             
+        except:             
             logging.info(f"{datetime.now(tz=None)} Search Chrome Fail URL {url} not found. Process terminated")    
             self.driver.quit()
             sys.exit(1)                 
         return self.driver 
+
+    def setUpfirefox(self,url):
+        """Firefox can run headless with sendkeys. (Firefox driver is called GeckoDriver)"""  
+        options = Options()
+        options.headless = True
+        logging.info(f"{datetime.now(tz=None)} Search Firefox Info Looking for geckodriver")  
+        try:
+            logging.info(f"{datetime.now(tz=None)} Search Firefox Info Geckodriver found") 
+            driver = webdriver.Firefox(executable_path='c:\\data\\geckodriver\\geckodriver.exe', options=options)
+        except (WebDriverException):
+            logging.info(f"{datetime.now(tz=None)} Search Firefox Fail Geckodriver not found. Process terminated")    
+            sys.exit(1)     
+        try:   
+            resp = requests.get(url)  
+            if resp.status_code == 200:
+                driver.get(url) 
+                logging.info(f"{datetime.now(tz=None)} Search Firefox Info URL {url} found") 
+                logging.info(f"{datetime.now(tz=None)} Search Firefox Info Headless Firefox Initialized") 
+        except:
+            logging.info(f"{datetime.now(tz=None)} Search Firefox Fail URL {url} not found. Process terminated")    
+            driver.quit()
+            sys.exit(1)               
+        return driver # ignore the handshake errors 
+
 
     def simulate_single_letter_search(self, driver, letter):
         """Find the search box and type in a single letter which will force a dropdown"""
@@ -126,8 +151,19 @@ def main():
     logging.basicConfig(filename='t2search.log', level=logging.INFO)   
     logging.warning("\n")
     url = "https://solosegment.com/" 
+    
     mysearch = Search(url)       
-    driver = mysearch.setUp(url)    
+    driver = mysearch.setUpchrome(url)    
+    mysearch.simulate_single_letter_search(driver, 's')    
+    mysearch.find_dropdown(driver)
+    mysearch.find_a_suggestion(driver) 
+    new_url = f"{url}?s=s"
+    driver = mysearch.verify_new_url(driver, new_url)     
+    mysearch.tearDown(driver)   
+
+
+    mysearch = Search(url)       
+    driver = mysearch.setUpfirefox(url)    
     mysearch.simulate_single_letter_search(driver, 's')    
     mysearch.find_dropdown(driver)
     mysearch.find_a_suggestion(driver) 
