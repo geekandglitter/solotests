@@ -42,6 +42,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import WebDriverException
 
+
 class Search():
 
     def __init__(self, url):
@@ -93,6 +94,32 @@ class Search():
             sys.exit(1)               
         return driver # ignore the handshake errors 
 
+    def setUpedge(self,url):
+        """Setup for MS Edge"""  
+        options = EdgeOptions()
+        options.use_chromium = True
+        options.add_argument("headless")
+        driver = Edge(options)        
+        logging.info(f"{datetime.now(tz=None)} Search Edge Info Looking for msedgedriver")  
+        try:
+            logging.info(f"{datetime.now(tz=None)} Search Edge Info msedgedriver found") 
+            driver = webdriver.Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options=options)
+        except (WebDriverException):
+            logging.info(f"{datetime.now(tz=None)} Search Edge Fail msedgedriver not found. Process terminated")    
+            sys.exit(1)     
+        try:   
+            resp = requests.get(url)  
+            if resp.status_code == 200:
+                driver.get(url) 
+                logging.info(f"{datetime.now(tz=None)} Search Edge Info URL {url} found") 
+                logging.info(f"{datetime.now(tz=None)} Search Edge Info Headless Firefox Initialized") 
+        except:
+            logging.info(f"{datetime.now(tz=None)} Search Edge Fail URL {url} not found. Process terminated")    
+            driver.quit()
+            sys.exit(1)               
+        return driver # ignore the handshake errors  
+   
+
 
     def simulate_single_letter_search(self, driver, letter):
         """Find the search box and type in a single letter which will force a dropdown"""
@@ -125,18 +152,15 @@ class Search():
         logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for one search suggestion") 
         try:            
             elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Info Found one search suggestion")   
-             
+            logging.info(f"{datetime.now(tz=None)} Search Chrome Info Found one search suggestion")                
         except (NoSuchElementException):             
             logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Search suggestion not found")    
             driver.quit()
             sys.exit(1)  
 
-
     def verify_new_url(self, driver, new_url):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
-        time.sleep(3) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#    
-                   
+        time.sleep(3) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
         if driver.current_url == new_url:              
             logging.info(f"{datetime.now(tz=None)} Pass")  
         else: 
@@ -151,7 +175,8 @@ def main():
     logging.basicConfig(filename='t2search.log', level=logging.INFO)   
     logging.warning("\n")
     url = "https://solosegment.com/" 
-    
+
+    # Chrome
     mysearch = Search(url)       
     driver = mysearch.setUpchrome(url)    
     mysearch.simulate_single_letter_search(driver, 's')    
@@ -161,7 +186,7 @@ def main():
     driver = mysearch.verify_new_url(driver, new_url)     
     mysearch.tearDown(driver)   
 
-
+    # Firefox
     mysearch = Search(url)       
     driver = mysearch.setUpfirefox(url)    
     mysearch.simulate_single_letter_search(driver, 's')    
@@ -171,6 +196,20 @@ def main():
     driver = mysearch.verify_new_url(driver, new_url)     
     mysearch.tearDown(driver)   
 
+    """
+    # Edge
+    mysearch = Search(url)       
+    driver = mysearch.setUpedge(url)    
+    mysearch.simulate_single_letter_search(driver, 's')    
+    mysearch.find_dropdown(driver)
+    mysearch.find_a_suggestion(driver) 
+    new_url = f"{url}?s=s"
+    driver = mysearch.verify_new_url(driver, new_url)     
+    mysearch.tearDown(driver)   
+    """
+
 
 if __name__ == "__main__":
     main()
+
+
