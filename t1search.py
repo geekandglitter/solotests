@@ -10,17 +10,17 @@ import logging
 import sys
 from datetime import datetime
 from selenium.webdriver.firefox.options import Options
-import requests
+import requests # Need this to make sure the URL is up and exists (driver.get() won't do that)
 
 def firefox_setup(url, testnum):
     """Consider using firefox for sendkeys with headless. (Firefox driver is called GeckoDriver)"""  
     options = Options()
     options.headless = True
     try:
+        logging.info(f"{datetime.now(tz=None)} Search {testnum} Firefox Info Geckodriver found") 
         driver = webdriver.Firefox(executable_path='c:\\data\\geckodriver\\geckodriver.exe', options=options)
     except (WebDriverException):
         logging.info(f"{datetime.now(tz=None)} Search {testnum} Firefox Fail Geckodriver not found. Process terminated")    
-        #driver.quit()
         sys.exit(1)     
     try:   
         resp = requests.get(url)  
@@ -42,6 +42,7 @@ def chrome_setup(url, testnum):
     options = webdriver.ChromeOptions()
     options.add_argument("--ignore-certificate-errors")   
     try:
+        logging.info(f"{datetime.now(tz=None)} Search {testnum} Chrome Info Chromedriver found") 
         driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)
     except (WebDriverException):
         logging.info(f"{datetime.now(tz=None)} Search {testnum} Chrome Fail Chromedriver not found. Process terminated")    
@@ -85,7 +86,7 @@ def simulate_search_icon(driver, keyword, testnum, browser):
     elem.click()          
     return    
 
-def verify_url(driver,keyword, testnum, browser):       
+def verify_new_url(driver,keyword, testnum, browser):       
     """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
     time.sleep(3) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#    
     
@@ -113,25 +114,25 @@ def main():
     logging.info(f"{datetime.now(tz=None)} Search 1 Firefox Info Starting")
     driver = firefox_setup(url,1 )
     simulate_search_enter(driver, keyword, 1, "Firefox")  
-    msg = verify_url(driver, keyword, 1, "Firefox")          
+    msg = verify_new_url(driver, keyword, 1, "Firefox")          
     tear_down(driver, 1, "Firefox")     
     
     logging.info(f"{datetime.now(tz=None)} Search 2 Firefox Info Starting")
     driver = firefox_setup(url,2)
     simulate_search_icon(driver, keyword, 2, "Firefox")   
-    msg = verify_url(driver, keyword, 2, "Firefox")          
+    msg = verify_new_url(driver, keyword, 2, "Firefox")          
     tear_down(driver, 2, "Firefox") 
 
     logging.info(f"{datetime.now(tz=None)} Search 1 Chrome Info Starting")
     driver = chrome_setup(url,1)   
     simulate_search_enter(driver, keyword, 1, "Chrome") 
-    msg = verify_url(driver, keyword, 1, "Chrome") 
+    msg = verify_new_url(driver, keyword, 1, "Chrome") 
     tear_down(driver, 1, "Chrome")    
 
     logging.info(f"{datetime.now(tz=None)} Search 2 Chrome Info Starting")
     driver = chrome_setup(url,2)
     simulate_search_icon(driver, keyword, 2, "Chrome") 
-    msg = verify_url(driver, keyword, 2, "Chrome")          
+    msg = verify_new_url(driver, keyword, 2, "Chrome")          
     tear_down(driver, 2, "Chrome")     
 
 if __name__=="__main__":
