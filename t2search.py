@@ -198,15 +198,17 @@ def main():
     logging.warning("\n")
     url = "https://solosegment.com/" 
     # [Chrome, Firefox, Safari, Ie, Edge, PhantomJS]
-
-    """
-    for browse in ["Chrome", "Firefox"]:
+ 
+    for browse in ["Chrome", "Firefox", "Edge"]:
   
         mysearch = Search(url)     
         if browse == "Chrome":  
             driver = mysearch.setUpchrome(url) 
         if browse == "Firefox":
-            driver = mysearch.setUpfirefox(url)    
+            driver = mysearch.setUpfirefox(url)   
+        if browse == "Edge":
+            driver = mysearch.setUpedge(url)  
+                 
         mysearch.simulate_single_letter_search(driver, 's', browse)    
         mysearch.find_dropdown(driver, browse)
         mysearch.find_a_suggestion(driver, browse) 
@@ -214,22 +216,7 @@ def main():
         driver = mysearch.verify_new_url(driver, new_url, browse)     
         mysearch.tearDown(driver)  
 
-    """
-
  
- 
-    # Edge
-    browse = "Edge"
-    mysearch = Search(url)       
-    driver = mysearch.setUpedge(url)    
-    mysearch.simulate_single_letter_search(driver, 's', browse)    
-    mysearch.find_dropdown(driver, browse)
-    mysearch.find_a_suggestion(driver, browse) 
-    new_url = f"{url}?s=s"
-    driver = mysearch.verify_new_url(driver, new_url, browse)     
-    mysearch.tearDown(driver)   
- 
-
 
 if __name__ == "__main__":
     main()
