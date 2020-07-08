@@ -1,4 +1,3 @@
-
 """
  
 NOTES:
@@ -11,7 +10,6 @@ from   selenium.webdriver.support.ui import Select
 from   selenium.common.exceptions import NoAlertPresentException 
 import json
 from selenium.webdriver.support import expected_conditions as EC
-
 driver.current_url
 driver.title
 # The following might be useful for verifying the driver instance:
@@ -21,12 +19,10 @@ driver.page_source
 driver.window_handles
 driver.current_window_handle
 driver.desired_capabilities
-
 ################
  Create a Selenium test to simulate a search on a website and test that a results page is shown. We can start with the
  SoloSegment.com site search as the first site to test with, but we will eventually create a test that can be used 
  any of our client's sites.
-
  Simulate entering a keyword for the letter 's' without pressing enter
  Results should be a list of suggestions
  """ 
@@ -55,7 +51,6 @@ def __selenium_local_driver(self):
             'safari': webdriver.Safari,
             'edge': webdriver.Edge,
         }
-
 """
 
 class Search():
@@ -68,25 +63,17 @@ class Search():
         return self.url 
 
     def setUpchrome(self, url):
+        """ Running Chrome headed so it will work with sendkeys"""
+        options = webdriver.ChromeOptions()
+        # options.add_argument("headless") # This is the correct syntax for headless                 
         logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for chromedriver")  
         try:            
-            self.driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe")   
+            self.driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)   
             logging.info(f"{datetime.now(tz=None)} Search Chrome Info Chromedriver found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Chromedriver not found. Process terminated")    
             sys.exit(1)   
-        try:   
-            resp = requests.get(url)  
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for URL {url}")
-            if resp.status_code == 200:                
-                self.driver.get(self.url)
-                logging.info(f"{datetime.now(tz=None)} Search Chrome Info URL {url} found") 
-                logging.info(f"{datetime.now(tz=None)} Search Chrome Info Headed Chrome Initialized") 
-        except:             
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Fail URL {url} not found. Process terminated")    
-            self.driver.quit()
-            sys.exit(1)                 
-        return self.driver 
+        return self.driver         
 
     def setUpfirefox(self,url):
         """Firefox can run headless with sendkeys. (Firefox driver is called GeckoDriver)"""  
@@ -99,49 +86,35 @@ class Search():
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Firefox Fail Geckodriver not found. Process terminated")    
             sys.exit(1)     
-        try:   
-            resp = requests.get(url)  
-            logging.info(f"{datetime.now(tz=None)} Search Firefox Info Looking for URL {url}")
-            if resp.status_code == 200:
-                self.driver.get(url) 
-                logging.info(f"{datetime.now(tz=None)} Search Firefox Info URL {url} found") 
-                logging.info(f"{datetime.now(tz=None)} Search Firefox Info Headless Firefox Initialized") 
-        except:
-            logging.info(f"{datetime.now(tz=None)} Search Firefox Fail URL {url} not found. Process terminated")    
-            self.driver.quit()
-            sys.exit(1)               
-        return self.driver # ignore the handshake errors 
+        return self.driver         
 
     def setUpedge(self,url):
-        """Setup for MS Edge. Sendkeys does not work with headless Edge"""  
-
+        """Setup for MS Edge. Sendkeys does not seem to work with headless Edge"""  
         options = EdgeOptions()
         options.use_chromium = True        
         #options.headless = True #This is the correct syntax for headless but we can't use it for sendkeys     
         logging.info(f"{datetime.now(tz=None)} Search Edge Info Looking for msedgedriver")  
         try:
             logging.info(f"{datetime.now(tz=None)} Search Edge Info msedgedriver found") 
-            self.driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options) 
-            #self.driver = webdriver.Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe')   
-
+            self.driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options)            
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Edge Fail msedgedriver not found. Process terminated")    
-            sys.exit(1)     
-        try:   
-            resp = requests.get(url) 
-            
-            logging.info(f"{datetime.now(tz=None)} Search Edge Info Looking for URL {url}")
-            if resp.status_code == 200:
-                self.driver.get(url) 
-                logging.info(f"{datetime.now(tz=None)} Search Edge Info URL {url} found") 
-                logging.info(f"{datetime.now(tz=None)} Search Edge Info Headless Edge Initialized") 
-        except:
-            logging.info(f"{datetime.now(tz=None)} Search Edge Fail URL {url} not found. Process terminated")    
-            self.driver.quit()
-            sys.exit(1)               
+            sys.exit(1)                     
         return self.driver # ignore the handshake errors  
    
-
+    def navigate_to_page(self, driver, url, browse):
+        try:   
+            resp = requests.get(url)  # This is how we have to make sure the URL exists and is obtainable
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Info Looking for URL {url}")
+            if resp.status_code == 200:                
+                driver.get(self.url)
+                logging.info(f"{datetime.now(tz=None)} Search {browse} Info URL {url} found") 
+                logging.info(f"{datetime.now(tz=None)} Search {browse} Info Headed Chrome Initialized") 
+        except:             
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Fail URL {url} not found. Process terminated")    
+            driver.quit()
+            sys.exit(1)                 
+        return self.driver
 
     def simulate_single_letter_search(self, driver, letter, browse):
         """Find the search box and type in a single letter which will force a dropdown"""
@@ -200,6 +173,7 @@ def main():
     # [Chrome, Firefox, Safari, Ie, Edge, PhantomJS]
  
     for browse in ["Chrome", "Firefox", "Edge"]:
+    #for browse in ["Chrome", "Firefox", "Edge", "Safari", "Ie", "PhantomJS"]:    
   
         mysearch = Search(url)     
         if browse == "Chrome":  
@@ -208,7 +182,9 @@ def main():
             driver = mysearch.setUpfirefox(url)   
         if browse == "Edge":
             driver = mysearch.setUpedge(url)  
-                 
+
+
+        driver= mysearch.navigate_to_page(driver, url, browse)         
         mysearch.simulate_single_letter_search(driver, 's', browse)    
         mysearch.find_dropdown(driver, browse)
         mysearch.find_a_suggestion(driver, browse) 
@@ -220,5 +196,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
