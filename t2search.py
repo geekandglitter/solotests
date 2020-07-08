@@ -1,5 +1,13 @@
 """
- 
+DISCUSS WITH MIKE:
+"Safari", "Ie", "PhantomJS"
+Possible solution for headless with sendkeys: headless browser can’t recognise the fire events without window-size
+from here: https://stackoverflow.com/questions/58807729/selenium-common-exceptions-elementnotinteractableexception-message-element-not
+I was running into this same issue and it was getting very frustrating! Luckily, in the newer alpha version (4.0.0-alpha-5) of the selenium-edge-driver
+ they have added in the addArguments() method into EdgeOptions()
+ The Microsoft Edge team recommends Selenium 4.00-alpha05 or later, because it supports from here:
+ https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium?tabs=c-sharp
+
 NOTES:
 1. This really should be written entirely in OOP, possibly with unittest as a testing framework 
 2. From Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
@@ -42,16 +50,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.firefox.options import Options
 from msedge.selenium_tools import Edge, EdgeOptions
 
-"""
-def __selenium_local_driver(self):
-        browser_mapping = {
-            'chrome': webdriver.Chrome,
-            'firefox': webdriver.Firefox,
-            'internet explorer': webdriver.Ie,
-            'safari': webdriver.Safari,
-            'edge': webdriver.Edge,
-        }
-"""
+ 
 
 class Search():
 
@@ -63,8 +62,12 @@ class Search():
         return self.url 
 
     def setUpchrome(self, url):
-        """ Running Chrome headed so it will work with sendkeys"""
+        """ Running Chrome headless with sendkeys required a window size"""
         options = webdriver.ChromeOptions()
+        #options = Options()         
+        options.add_argument("window-size=1920x1080")
+        options.add_argument("headless")
+
         # options.add_argument("headless") # This is the correct syntax for headless                 
         logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for chromedriver")  
         try:            
@@ -89,18 +92,44 @@ class Search():
         return self.driver         
 
     def setUpedge(self,url):
-        """Setup for MS Edge. Sendkeys does not seem to work with headless Edge"""  
+        """Edge gets wordy when it's headless, but at least it's working (by setting window size)"""  
         options = EdgeOptions()
-        options.use_chromium = True        
-        #options.headless = True #This is the correct syntax for headless but we can't use it for sendkeys     
+        options.use_chromium = True          
+        #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
+        options.headless = True # I got this to work by setting the driver window size  
         logging.info(f"{datetime.now(tz=None)} Search Edge Info Looking for msedgedriver")  
         try:
             logging.info(f"{datetime.now(tz=None)} Search Edge Info msedgedriver found") 
-            self.driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options)            
+            self.driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options)   
+            self.driver.set_window_size(1600, 1200)  # set the driver window size so that headless will work with sendkeys       
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Edge Fail msedgedriver not found. Process terminated")    
             sys.exit(1)                     
         return self.driver # ignore the handshake errors  
+
+
+
+        def setUpsafari(self,url):
+            """We cannot currently work on safari
+            https://webkit.org/blog/9395/webdriver-is-coming-to-safari-in-ios-13/#:~:text=In%20order%20to%20run%20WebDriver,
+            not%20support%20iOS%20WebDriver%20sessions
+            In order to run WebDriver tests on an iOS device, it must be plugged into a macOS host that has a new
+             enough version of safaridriver. Support for hosting iOS-based WebDriver sessions is available in safaridriver
+              included with Safari 13 and later. Older versions of safaridriver do not support iOS WebDriver sessions.
+            https://www.edureka.co/community/46309/possible-selenium-automation-scripts-browser-windows-machine  
+            Safari 13 and later support iOS WebDriver sessions. I have Safari 12.4.7 on my ipad, and it can't be updated any more
+            """
+            logging.info(f"{datetime.now(tz=None)} Search Safari Info Looking for safaridriver")  
+            try:
+                logging.info(f"{datetime.now(tz=None)} Search Safari Info Safaridriver found") 
+                self.driver = webdriver.Safari(executable_path='c:\\data\\safaridriver\\safaridriver.exe', options=options)
+            except (WebDriverException):
+                logging.info(f"{datetime.now(tz=None)} Search Safari Fail Safaridriver not found. Process terminated")    
+                sys.exit(1)     
+            return self.driver
+
+ 
+
    
     def navigate_to_page(self, driver, url, browse):
         try:   
@@ -109,7 +138,7 @@ class Search():
             if resp.status_code == 200:                
                 driver.get(self.url)
                 logging.info(f"{datetime.now(tz=None)} Search {browse} Info URL {url} found") 
-                logging.info(f"{datetime.now(tz=None)} Search {browse} Info Headed Chrome Initialized") 
+                logging.info(f"{datetime.now(tz=None)} Search {browse} Info Browser Initialized") 
         except:             
             logging.info(f"{datetime.now(tz=None)} Search {browse} Fail URL {url} not found. Process terminated")    
             driver.quit()
