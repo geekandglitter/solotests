@@ -121,50 +121,50 @@ class Search():
    
 
 
-    def simulate_single_letter_search(self, driver, letter):
+    def simulate_single_letter_search(self, driver, letter, browse):
         """Find the search box and type in a single letter which will force a dropdown"""
-        logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for search box")
+        logging.info(f"{datetime.now(tz=None)} Search {browse} Info Looking for search box")
         try:               
             elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Info Search box found")
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Info Search box found")
         except (NoSuchElementException):
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Search box not found")    
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Fail Search box not found")    
             driver.quit()
             sys.exit(1)
         elem.send_keys(letter)  
         elem.send_keys(Keys.ENTER)  
         return
  
-    def find_dropdown(self,driver):
+    def find_dropdown(self,driver, browse):
         """See that we have a search suggestion dropdown"""
-        logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for search suggestion dropdown")  
+        logging.info(f"{datetime.now(tz=None)} Search {browse} Info Looking for search suggestion dropdown")  
         try:         
             time.sleep(3)   
             elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/div')
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Info Found search suggestion dropdown")   
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Info Found search suggestion dropdown")   
         except (NoSuchElementException):  
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Search suggestion dropdown not found")    
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Fail Search suggestion dropdown not found")    
             driver.quit()
             sys.exit(1)     
 
-    def find_a_suggestion(self,driver):
+    def find_a_suggestion(self,driver, browse):
         """ Now that we've found the dropdown, it seems reasonable there should be at least one suggestion in the list"""    
-        logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for one search suggestion") 
+        logging.info(f"{datetime.now(tz=None)} Search {browse} Info Looking for one search suggestion") 
         try:            
             elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Info Found one search suggestion")                
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Info Found one search suggestion")                
         except (NoSuchElementException):             
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Search suggestion not found")    
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Fail Search suggestion not found")    
             driver.quit()
             sys.exit(1)  
 
-    def verify_new_url(self, driver, new_url):       
+    def verify_new_url(self, driver, new_url, browse):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
         time.sleep(3) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
         if driver.current_url == new_url:              
-            logging.info(f"{datetime.now(tz=None)} Pass")  
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Pass")  
         else: 
-            logging.info(f"{datetime.now(tz=None)} Fail with {driver.current_url}")           
+            logging.info(f"{datetime.now(tz=None)} Search {browse} Fail with {driver.current_url}")           
         return driver  
 
     def tearDown(self, driver):         
@@ -176,25 +176,24 @@ def main():
     logging.warning("\n")
     url = "https://solosegment.com/" 
 
-    # Chrome
-    mysearch = Search(url)       
-    driver = mysearch.setUpchrome(url)    
-    mysearch.simulate_single_letter_search(driver, 's')    
-    mysearch.find_dropdown(driver)
-    mysearch.find_a_suggestion(driver) 
-    new_url = f"{url}?s=s"
-    driver = mysearch.verify_new_url(driver, new_url)     
-    mysearch.tearDown(driver)   
 
-    # Firefox
-    mysearch = Search(url)       
-    driver = mysearch.setUpfirefox(url)    
-    mysearch.simulate_single_letter_search(driver, 's')    
-    mysearch.find_dropdown(driver)
-    mysearch.find_a_suggestion(driver) 
-    new_url = f"{url}?s=s"
-    driver = mysearch.verify_new_url(driver, new_url)     
-    mysearch.tearDown(driver)   
+    for browse in ["Chrome", "Firefox"]:
+    # Chrome
+        mysearch = Search(url)     
+        if browse == "Chrome":  
+            driver = mysearch.setUpchrome(url) 
+        if browse == "Firefox":
+            driver = mysearch.setUpfirefox(url)    
+        mysearch.simulate_single_letter_search(driver, 's', browse)    
+        mysearch.find_dropdown(driver, browse)
+        mysearch.find_a_suggestion(driver, browse) 
+        new_url = f"{url}?s=s"
+        driver = mysearch.verify_new_url(driver, new_url, browse)     
+        mysearch.tearDown(driver)  
+
+
+
+ 
 
     """
     # Edge
