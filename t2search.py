@@ -49,6 +49,8 @@ from selenium.common.exceptions import WebDriverException
 # Browser Imports
 from selenium.webdriver.firefox.options import Options
 from msedge.selenium_tools import Edge, EdgeOptions
+ 
+
 
  
 
@@ -61,8 +63,9 @@ class Search():
         """This returns better information for the developer when he tries printing the instance"""
         return self.url 
 
-    def setUpchrome(self, url):
-        """ Running Chrome headless with sendkeys required a window size"""
+    def setUpchrome(self):
+        """Product name: unavailable Product version: unavailabe 
+        Running Chrome headless with sendkeys required a window size"""
         options = webdriver.ChromeOptions()
         #options = Options()         
         options.add_argument("window-size=1920x1080")
@@ -74,61 +77,77 @@ class Search():
             self.driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)   
             logging.info(f"{datetime.now(tz=None)} Search Chrome Info Chromedriver found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Chromedriver not found. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Chromedriver not found or driver failed to launch. Process terminated")    
             sys.exit(1)   
         return self.driver         
 
-    def setUpfirefox(self,url):
-        """Firefox can run headless with sendkeys. (Firefox driver is called GeckoDriver)"""  
+    def setUpfirefox(self):
+        """Product name: Firefox Nightly Product version: 71.0a1 
+        Firefox can run headless with sendkeys. (Firefox driver is called GeckoDriver)"""  
         options = Options()
         options.headless = True
         logging.info(f"{datetime.now(tz=None)} Search Firefox Info Looking for geckodriver")  
         try:
-            logging.info(f"{datetime.now(tz=None)} Search Firefox Info Geckodriver found") 
             self.driver = webdriver.Firefox(executable_path='c:\\data\\geckodriver\\geckodriver.exe', options=options)
+            logging.info(f"{datetime.now(tz=None)} Search Firefox Info Geckodriver found")             
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Search Firefox Fail Geckodriver not found. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} Search Firefox Fail Geckodriver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
         return self.driver         
 
-    def setUpedge(self,url):
-        """Edge gets wordy when it's headless, but at least it's working (by setting window size)"""  
+    def setUpedge(self):
+        """Product name: Microsoft WebDriver Product version 83.0.478.58 
+        Edge gets wordy when it's headless, but at least it's working (by setting window size)"""  
         options = EdgeOptions()
         options.use_chromium = True          
         #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
         options.headless = True # I got this to work by setting the driver window size  
         logging.info(f"{datetime.now(tz=None)} Search Edge Info Looking for msedgedriver")  
         try:
-            logging.info(f"{datetime.now(tz=None)} Search Edge Info msedgedriver found") 
             self.driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options)   
-            self.driver.set_window_size(1600, 1200)  # set the driver window size so that headless will work with sendkeys       
+            self.driver.set_window_size(1600, 1200)  # set the driver window size so that headless will work with sendkeys   
+            logging.info(f"{datetime.now(tz=None)} Search Edge Info msedgedriver found")     
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Search Edge Fail msedgedriver not found. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} Search Edge Fail msedgedriver not found or driver failed to launch. Process terminated")    
             sys.exit(1)                     
-        return self.driver # ignore the handshake errors  
+        return self.driver # ignore the handshake errors 
 
 
+    def setUpsafari(self):
+        """We cannot currently work on safari
+        https://webkit.org/blog/9395/webdriver-is-coming-to-safari-in-ios-13/#:~:text=In%20order%20to%20run%20WebDriver,
+        not%20support%20iOS%20WebDriver%20sessions
+        In order to run WebDriver tests on an iOS device, it must be plugged into a macOS host that has a new
+        enough version of safaridriver. Support for hosting iOS-based WebDriver sessions is available in safaridriver
+        included with Safari 13 and later. Older versions of safaridriver do not support iOS WebDriver sessions.
+        https://www.edureka.co/community/46309/possible-selenium-automation-scripts-browser-windows-machine  
+        Safari 13 and later support iOS WebDriver sessions. I have Safari 12.4.7 on my ipad, and it can't be updated any more
+        """
+        logging.info(f"{datetime.now(tz=None)} Search Safari Info Looking for safaridriver")  
+        try:            
+            self.driver = webdriver.Safari(executable_path='c:\\data\\safaridriver\\safaridriver.exe')
+            logging.info(f"{datetime.now(tz=None)} Search Safari Info Safaridriver found") 
+        except (WebDriverException):
+            logging.info(f"{datetime.now(tz=None)} Search Safari Fail Safaridriver not found or driver failed to launch. Process terminated")    
+            sys.exit(1)     
+        return self.driver 
 
-        def setUpsafari(self,url):
-            """We cannot currently work on safari
-            https://webkit.org/blog/9395/webdriver-is-coming-to-safari-in-ios-13/#:~:text=In%20order%20to%20run%20WebDriver,
-            not%20support%20iOS%20WebDriver%20sessions
-            In order to run WebDriver tests on an iOS device, it must be plugged into a macOS host that has a new
-             enough version of safaridriver. Support for hosting iOS-based WebDriver sessions is available in safaridriver
-              included with Safari 13 and later. Older versions of safaridriver do not support iOS WebDriver sessions.
-            https://www.edureka.co/community/46309/possible-selenium-automation-scripts-browser-windows-machine  
-            Safari 13 and later support iOS WebDriver sessions. I have Safari 12.4.7 on my ipad, and it can't be updated any more
-            """
-            logging.info(f"{datetime.now(tz=None)} Search Safari Info Looking for safaridriver")  
-            try:
-                logging.info(f"{datetime.now(tz=None)} Search Safari Info Safaridriver found") 
-                self.driver = webdriver.Safari(executable_path='c:\\data\\safaridriver\\safaridriver.exe', options=options)
-            except (WebDriverException):
-                logging.info(f"{datetime.now(tz=None)} Search Safari Fail Safaridriver not found. Process terminated")    
-                sys.exit(1)     
-            return self.driver
+    def setUpIE(self):
+        """Product name: Selenium WebDriver Product version: 2.42.0.0
+        IE has two gotchas, which I posted in my blog: https://fullstacksafari.blogspot.com/2020/07/selenium-webdriver-for-ie-gothas.html
+        """    
+        logging.info(f"{datetime.now(tz=None)} Search IE Info Looking for IEDriverServer")   
 
- 
+        try:           
+              
+            self.driver = webdriver.Ie(executable_path='c:\\data\\iedriver\\IEDriverServer.exe')                     
+            self.driver.implicitly_wait(2)
+            self.driver.maximize_window()
+            logging.info(f"{datetime.now(tz=None)} Search IE Info IEDriverServer found") 
+        except (WebDriverException):
+            logging.info(f"{datetime.now(tz=None)} Search IE Fail IEDriverServer not found or driver failed to launch. Process terminated")    
+            sys.exit(1)     
+        return self.driver 
 
    
     def navigate_to_page(self, driver, url, browse):
@@ -192,26 +211,27 @@ class Search():
         return driver  
 
     def tearDown(self, driver):         
-        driver.close() 
+        #driver.close() 
+        driver.quit()
         return  
 
 def main():
+    """Selenium VERSION 3.141.0"""
     logging.basicConfig(filename='t2search.log', level=logging.INFO)   
     logging.warning("\n")
-    url = "https://solosegment.com/" 
-    # [Chrome, Firefox, Safari, Ie, Edge, PhantomJS]
- 
-    for browse in ["Chrome", "Firefox", "Edge"]:
-    #for browse in ["Chrome", "Firefox", "Edge", "Safari", "Ie", "PhantomJS"]:    
-  
+    url = "https://solosegment.com/"  
+    
+    #for browse in ["Chrome", "Firefox", "Edge", "Safari", "Ie", "Opera" "Legacy"]:    
+    for browse in ["Chrome", "Firefox", "Edge","IE"]:
         mysearch = Search(url)     
         if browse == "Chrome":  
-            driver = mysearch.setUpchrome(url) 
+            driver = mysearch.setUpchrome() 
         if browse == "Firefox":
-            driver = mysearch.setUpfirefox(url)   
+            driver = mysearch.setUpfirefox()   
         if browse == "Edge":
-            driver = mysearch.setUpedge(url)  
-
+            driver = mysearch.setUpedge()  
+        if browse == "IE":
+            driver = mysearch.setUpIE()
 
         driver= mysearch.navigate_to_page(driver, url, browse)         
         mysearch.simulate_single_letter_search(driver, 's', browse)    
