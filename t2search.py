@@ -1,17 +1,9 @@
 """
-DISCUSS WITH MIKE:
-"Safari", "Ie", "PhantomJS"
-Possible solution for headless with sendkeys: headless browser can’t recognise the fire events without window-size
-from here: https://stackoverflow.com/questions/58807729/selenium-common-exceptions-elementnotinteractableexception-message-element-not
-I was running into this same issue and it was getting very frustrating! Luckily, in the newer alpha version (4.0.0-alpha-5) of the selenium-edge-driver
- they have added in the addArguments() method into EdgeOptions()
- The Microsoft Edge team recommends Selenium 4.00-alpha05 or later, because it supports from here:
- https://docs.microsoft.com/en-us/microsoft-edge/webdriver-chromium?tabs=c-sharp
-
-NOTES:
-1. This really should be written entirely in OOP, possibly with unittest as a testing framework 
-2. From Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
-3. See https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
+NOTES to self:
+1. I have a post with a link on how to use unittest
+2. Also use that same post to refactor the browser set up some more
+3. Find out what this is from Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
+4. And this: https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
  
 ## may or may not need these ### 
 from   selenium.webdriver.support.ui import Select
@@ -20,6 +12,7 @@ import json
 from selenium.webdriver.support import expected_conditions as EC
 driver.current_url
 driver.title
+
 # The following might be useful for verifying the driver instance:
 driver.name
 driver.orientation
@@ -28,11 +21,7 @@ driver.window_handles
 driver.current_window_handle
 driver.desired_capabilities
 ################
- Create a Selenium test to simulate a search on a website and test that a results page is shown. We can start with the
- SoloSegment.com site search as the first site to test with, but we will eventually create a test that can be used 
- any of our client's sites.
- Simulate entering a keyword for the letter 's' without pressing enter
- Results should be a list of suggestions
+ 
  """ 
 # System and Module Imports
 import logging 
@@ -49,9 +38,6 @@ from selenium.common.exceptions import WebDriverException
 # Browser Imports
 from selenium.webdriver.firefox.options import Options
 from msedge.selenium_tools import Edge, EdgeOptions
- 
-
-
  
 
 class Search():
@@ -114,18 +100,12 @@ class Search():
 
 
     def setUpsafari(self):
-        """We cannot currently work on safari
-        https://webkit.org/blog/9395/webdriver-is-coming-to-safari-in-ios-13/#:~:text=In%20order%20to%20run%20WebDriver,
-        not%20support%20iOS%20WebDriver%20sessions
-        In order to run WebDriver tests on an iOS device, it must be plugged into a macOS host that has a new
-        enough version of safaridriver. Support for hosting iOS-based WebDriver sessions is available in safaridriver
-        included with Safari 13 and later. Older versions of safaridriver do not support iOS WebDriver sessions.
-        https://www.edureka.co/community/46309/possible-selenium-automation-scripts-browser-windows-machine  
-        Safari 13 and later support iOS WebDriver sessions. I have Safari 12.4.7 on my ipad, and it can't be updated any more
-        """
+        """I cannot currently test this safari code beause my only ios is on an old ipad Safari 12.4.7.  
+        I posted a writeup on implementing Safari that might be of some help: https://speakingpython.blogspot.com/search/label/Safari
+        """ 
         logging.info(f"{datetime.now(tz=None)} Search Safari Info Looking for safaridriver")  
         try:            
-            self.driver = webdriver.Safari(executable_path='c:\\data\\safaridriver\\safaridriver.exe')
+            self.driver = webdriver.Safari(executable_path = '/usr/bin/safaridriver')    
             logging.info(f"{datetime.now(tz=None)} Search Safari Info Safaridriver found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Safari Fail Safaridriver not found or driver failed to launch. Process terminated")    
@@ -134,12 +114,11 @@ class Search():
 
     def setUpIE(self):
         """Product name: Selenium WebDriver Product version: 2.42.0.0
-        IE has two gotchas, which I posted in my blog: https://fullstacksafari.blogspot.com/2020/07/selenium-webdriver-for-ie-gothas.html
+        IE does not have support for a headless mode
+        IE has some other gotchas, too, which I posted in my blog: https://speakingpython.blogspot.com/2020/07/selenium-webdriver-for-ie-gotchas.html
         """    
         logging.info(f"{datetime.now(tz=None)} Search IE Info Looking for IEDriverServer")   
-
-        try:           
-              
+        try:   
             self.driver = webdriver.Ie(executable_path='c:\\data\\iedriver\\IEDriverServer.exe')                     
             self.driver.implicitly_wait(2)
             self.driver.maximize_window()
@@ -150,12 +129,14 @@ class Search():
         return self.driver 
 
    
-    def navigate_to_page(self, driver, url, browse):
+    def get_the_page(self, driver, url, browse):
+        """See if the page is up and then get the page"""
         try:   
             resp = requests.get(url)  # This is how we have to make sure the URL exists and is obtainable
             logging.info(f"{datetime.now(tz=None)} Search {browse} Info Looking for URL {url}")
             if resp.status_code == 200:                
                 driver.get(self.url)
+                time.sleep(10)
                 logging.info(f"{datetime.now(tz=None)} Search {browse} Info URL {url} found") 
                 logging.info(f"{datetime.now(tz=None)} Search {browse} Info Browser Initialized") 
         except:             
@@ -216,7 +197,12 @@ class Search():
         return  
 
 def main():
-    """Selenium VERSION 3.141.0"""
+    """Selenium VERSION 3.141.0
+    Task: Create a Selenium test to simulate a search on a website and test that a results page is shown. We can start with the
+    SoloSegment.com site search as the first site to test with, but we will eventually create a test that can be used with any of
+    our client's sites. Simulate entering a keyword for the letter 's' without pressing enter. Results should be a list of suggestions
+    """
+
     logging.basicConfig(filename='t2search.log', level=logging.INFO)   
     logging.warning("\n")
     url = "https://solosegment.com/"  
@@ -233,7 +219,7 @@ def main():
         if browse == "IE":
             driver = mysearch.setUpIE()
 
-        driver= mysearch.navigate_to_page(driver, url, browse)         
+        driver= mysearch.get_the_page(driver, url, browse)         
         mysearch.simulate_single_letter_search(driver, 's', browse)    
         mysearch.find_dropdown(driver, browse)
         mysearch.find_a_suggestion(driver, browse) 
@@ -241,7 +227,6 @@ def main():
         driver = mysearch.verify_new_url(driver, new_url, browse)     
         mysearch.tearDown(driver)  
 
- 
 
 if __name__ == "__main__":
     main()
