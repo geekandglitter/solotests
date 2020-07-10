@@ -1,9 +1,23 @@
 """
+DISCUSS WITH MIKE:
+1. Selenium v4.0.0-alpha.1    https://www.selenium.dev/selenium/docs/api/javascript/page/Changes.html
+For Opera, users should be able to simply rely on testing Chrome as the Opera browser is based on Chromium
+(and the operadriver was a thin wrapper around chromedriver). 
+For PhantomJS, users should use Chrome or Firefox in headless mode (see example/headless.js)
+2. Can you ask your developers which browsers they think really must be tested? We have chrome, firefox, IE (headed only), Edge. Do we also need 
+Opera(which is based on CHrome) and Edge Legacy?
+3. RIght now I'm quitting out of the whole script if a driver isn't found. Maybe I should just move on to the next driver
+4. Note: the driver I have doesn't even work in Opera 69.0.3686.57 but it does work in 69.0.3686.47, but Opera keeps updating itself. ALso I see 
+that it doesn't work with the developer version: https://blogs.opera.com/desktop/2020/06/opera-71-developer/. Maybe they've dropped support
+Plus note that Opera has no headless option, and is based on Chromium anyway. Not to mention I can't get rid of that flags error
+5. I don't know but maybe the developers care that I'm not using the unittest module
+
 NOTES to self:
 1. I have a post with a link on how to use unittest
 2. Also use that same post to refactor the browser set up some more
 3. Find out what this is from Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
 4. And this: https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
+5. I Need to research capabilities options
  
 ## may or may not need these ### 
 from   selenium.webdriver.support.ui import Select
@@ -38,6 +52,7 @@ from selenium.common.exceptions import WebDriverException
 # Browser Imports
 from selenium.webdriver.firefox.options import Options
 from msedge.selenium_tools import Edge, EdgeOptions
+from selenium.webdriver.chrome import service
  
 
 class Search():
@@ -50,15 +65,16 @@ class Search():
         return self.url 
 
     def setUpchrome(self):
-        """Product name: unavailable Product version: unavailabe 
+        """Product name: unavailable Product version: unavailable 
         Running Chrome headless with sendkeys required a window size"""
         options = webdriver.ChromeOptions()
-        #options = Options()         
+           
         options.add_argument("window-size=1920x1080")
         options.add_argument("headless")
 
         # options.add_argument("headless") # This is the correct syntax for headless                 
         logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for chromedriver")  
+
         try:            
             self.driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)   
             logging.info(f"{datetime.now(tz=None)} Search Chrome Info Chromedriver found")  
@@ -125,6 +141,50 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} Search IE Info IEDriverServer found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search IE Fail IEDriverServer not found or driver failed to launch. Process terminated")    
+            sys.exit(1)     
+        return self.driver 
+
+
+
+    def setUpOpera(self):
+        """Product name: unavailable Product version: unavailable 
+        This is working but with an error in Opera which is this:
+        You are using an unsupported command-line flag: --enable-blink-features=shadow DOM V0. stability and security will suffer.
+        but then I updated Opera and now it doesn't work at all
+        then I uninstalled it and reinstalled the 47 version for "all users"
+        Now it works again but I'm still getting that flag message
+        https://github.com/operasoftware/operachromiumdriver/blob/master/docs/desktop.md 
+        headless is not supported in Opera
+        There are 2 types of Opera - Java Based and Chrominium based.
+        The provided links are for Java based Opera.
+        https://github.com/operasoftware/operadriver#desktop
+        There is no official support for latest Opera versions.
+        OperaPrestoDriver is only compatible with Presto-based Opera browsers up until v12.1*. 
+        For Blink-based Operas (v15 and onwards), refer to the OperaChromiumDriver project.
+        I finally found enable-blink-features here: https://peter.sh/experiments/chromium-command-line-switches/
+        Note: the driver I have doesn't even work in Opera 69.0.3686.57 but it does work in 69.0.3686.47, but Opera keeps updating itself. 
+        Plus note that Opera has no headless option, and is based on Chromium anyway. Not to mention I can't get rid of that flags error
+
+         
+         
+        """    
+        logging.info(f"{datetime.now(tz=None)} Search Opera Info Looking for operadriver")   
+        try:               
+            options = webdriver.ChromeOptions()                
+            #options.headless = True       
+            #options.add_argument("window-size=1920x1080")
+            #options.add_argument("headless")
+
+
+            #options.binary_location = "C:\\Users\\Linda\\AppData\\Local\\Programs\\Opera\\launcher.exe"
+            self.driver = webdriver.Opera(executable_path="c:\\data\\operadriver_win64\\operadriver.exe", options=options)
+            #self.driver.set_window_size(1600, 1200)         
+            self.driver.implicitly_wait(2)       
+            #self.driver.maximize_window()
+              # set the driver window size so that headless will work with sendkeys  
+            logging.info(f"{datetime.now(tz=None)} Search Opera Info operadriver found") 
+        except (WebDriverException):
+            logging.info(f"{datetime.now(tz=None)} Search Opera Fail operadriver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
         return self.driver 
 
@@ -208,18 +268,21 @@ def main():
     url = "https://solosegment.com/"  
     
     #for browse in ["Chrome", "Firefox", "Edge", "Safari", "Ie", "Opera" "Legacy"]:    
-    for browse in ["Chrome", "Firefox", "Edge","IE"]:
+    for browse in ["Opera", "Chrome", "Firefox", "Edge","IE"]:
+    #for browse in ["Opera"]:    
         mysearch = Search(url)     
         if browse == "Chrome":  
-            driver = mysearch.setUpchrome() 
+            driver = mysearch.setUpchrome()   # get the handler
         if browse == "Firefox":
-            driver = mysearch.setUpfirefox()   
+            driver = mysearch.setUpfirefox()  # get the handler 
         if browse == "Edge":
-            driver = mysearch.setUpedge()  
+            driver = mysearch.setUpedge()     # get the handler
         if browse == "IE":
-            driver = mysearch.setUpIE()
+            driver = mysearch.setUpIE()       # get the handler
+        if browse == "Opera":
+            driver = mysearch.setUpOpera()    # get the handler
 
-        driver= mysearch.get_the_page(driver, url, browse)         
+        driver= mysearch.get_the_page(driver, url, browse)         # get the page we want to test
         mysearch.simulate_single_letter_search(driver, 's', browse)    
         mysearch.find_dropdown(driver, browse)
         mysearch.find_a_suggestion(driver, browse) 
