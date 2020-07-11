@@ -1,4 +1,6 @@
 """
+
+
 DISCUSS WITH MIKE:
 0. Selenium 4 will end support for Opera and headless testing with Phantom.
 1. Selenium v4.0.0-alpha.1    https://www.selenium.dev/selenium/docs/api/javascript/page/Changes.html
@@ -13,12 +15,16 @@ that it doesn't work with the developer version: https://blogs.opera.com/desktop
 Plus note that Opera has no headless option, and is based on Chromium anyway. Not to mention I can't get rid of that flags error
 5. I don't know but maybe the developers care that I'm not using the unittest module
 
+ :
+
+
 NOTES to self:
 1. I have a post with a link on how to use unittest
 2. Also use that same post to refactor the browser set up some more
 3. Find out what this is from Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
 4. And this: https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
 5. I Need to research capabilities options
+6. I might want to switch to implicit waits
  
 ## may or may not need these ### 
 from   selenium.webdriver.support.ui import Select
@@ -54,6 +60,13 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.firefox.options import Options
 from msedge.selenium_tools import Edge, EdgeOptions
 from selenium.webdriver.chrome import service
+# Browser Imports for Selenium 4
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.edge.service import Service # couldn't get Service to work for Edge
+from selenium.webdriver.safari.service import Service # untested of course
+from selenium.webdriver.ie.service import Service
+
  
 
 class Search():
@@ -67,17 +80,15 @@ class Search():
 
     def setUpchrome(self):
         """Product name: unavailable Product version: unavailable 
-        Running Chrome headless with sendkeys required a window size"""
-        options = webdriver.ChromeOptions()
-           
+        Running Chrome headless with sendkeys requires a window size"""
+        options = webdriver.ChromeOptions()           
         options.add_argument("window-size=1920x1080")
-        options.add_argument("headless")
-
-        # options.add_argument("headless") # This is the correct syntax for headless                 
+        options.add_argument("headless") 
         logging.info(f"{datetime.now(tz=None)} Search Chrome Info Looking for chromedriver")  
 
-        try:            
-            self.driver = webdriver.Chrome("c:\\data\\chromedriver\\chromedriver.exe", options=options)   
+        try:
+            service = Service('c:\\data\\chromedriver\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
+            self.driver = webdriver.Chrome(options=options, service=service)   
             logging.info(f"{datetime.now(tz=None)} Search Chrome Info Chromedriver found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Chrome Fail Chromedriver not found or driver failed to launch. Process terminated")    
@@ -89,9 +100,11 @@ class Search():
         Firefox can run headless with sendkeys. (Firefox driver is called GeckoDriver)"""  
         options = Options()
         options.headless = True
-        logging.info(f"{datetime.now(tz=None)} Search Firefox Info Looking for geckodriver")  
+        logging.info(f"{datetime.now(tz=None)} Search Firefox Info Looking for geckodriver") 
+        
         try:
-            self.driver = webdriver.Firefox(executable_path='c:\\data\\geckodriver\\geckodriver.exe', options=options)
+            service = Service('c:\\data\\geckodriver\\geckodriver.exe') # Specify the custom path (new for Selenium 4)
+            self.driver = webdriver.Firefox(options=options, service=service)
             logging.info(f"{datetime.now(tz=None)} Search Firefox Info Geckodriver found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Firefox Fail Geckodriver not found or driver failed to launch. Process terminated")    
@@ -100,7 +113,8 @@ class Search():
 
     def setUpedge(self):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
-        Edge gets wordy when it's headless, but at least it's working (by setting window size)"""  
+        * Edge gets wordy when it's headless, but at least it's working (by setting window size)
+        * At the time of this refactor for Selenium 4, it appears that Edge does not yet use the service object"""  
         options = EdgeOptions()
         options.use_chromium = True          
         #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
@@ -120,9 +134,11 @@ class Search():
         """I cannot currently test this safari code beause my only ios is on an old ipad Safari 12.4.7.  
         I posted a writeup on implementing Safari that might be of some help: https://speakingpython.blogspot.com/search/label/Safari
         """ 
+        return
         logging.info(f"{datetime.now(tz=None)} Search Safari Info Looking for safaridriver")  
-        try:            
-            self.driver = webdriver.Safari(executable_path = '/usr/bin/safaridriver')    
+        try:       
+            service = Service('/usr/bin/safaridriver') # Specify the custom path (new for Selenium 4)       
+            self.driver = webdriver.Safari(options=options, service=service)    
             logging.info(f"{datetime.now(tz=None)} Search Safari Info Safaridriver found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Search Safari Fail Safaridriver not found or driver failed to launch. Process terminated")    
@@ -136,7 +152,8 @@ class Search():
         """    
         logging.info(f"{datetime.now(tz=None)} Search IE Info Looking for IEDriverServer")   
         try:   
-            self.driver = webdriver.Ie(executable_path='c:\\data\\iedriver\\IEDriverServer.exe')                     
+            service = Service('c:\\data\\iedriver\\IEDriverServer.exe') # Specify the custom path (new for Selenium 4)  
+            self.driver = webdriver.Ie(service=service)                     
             self.driver.implicitly_wait(2)
             self.driver.maximize_window()
             logging.info(f"{datetime.now(tz=None)} Search IE Info IEDriverServer found") 
@@ -144,50 +161,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} Search IE Fail IEDriverServer not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
         return self.driver 
-
-
-
-    def setUpOpera(self):
-        """Product name: unavailable Product version: unavailable 
-        This is working but with an error in Opera which is this:
-        You are using an unsupported command-line flag: --enable-blink-features=shadow DOM V0. stability and security will suffer.
-        but then I updated Opera and now it doesn't work at all
-        then I uninstalled it and reinstalled the 47 version for "all users"
-        Now it works again but I'm still getting that flag message
-        https://github.com/operasoftware/operachromiumdriver/blob/master/docs/desktop.md 
-        headless is not supported in Opera
-        There are 2 types of Opera - Java Based and Chrominium based.
-        The provided links are for Java based Opera.
-        https://github.com/operasoftware/operadriver#desktop
-        There is no official support for latest Opera versions.
-        OperaPrestoDriver is only compatible with Presto-based Opera browsers up until v12.1*. 
-        For Blink-based Operas (v15 and onwards), refer to the OperaChromiumDriver project.
-        I finally found enable-blink-features here: https://peter.sh/experiments/chromium-command-line-switches/
-        Note: the driver I have doesn't even work in Opera 69.0.3686.57 but it does work in 69.0.3686.47, but Opera keeps updating itself. 
-        Plus note that Opera has no headless option, and is based on Chromium anyway. Not to mention I can't get rid of that flags error
-
-         
-         
-        """    
-        logging.info(f"{datetime.now(tz=None)} Search Opera Info Looking for operadriver")   
-        try:               
-            options = webdriver.ChromeOptions()                
-            #options.headless = True       
-            #options.add_argument("window-size=1920x1080")
-            #options.add_argument("headless")
-
-
-            #options.binary_location = "C:\\Users\\Linda\\AppData\\Local\\Programs\\Opera\\launcher.exe"
-            self.driver = webdriver.Opera(executable_path="c:\\data\\operadriver_win64\\operadriver.exe", options=options)
-            #self.driver.set_window_size(1600, 1200)         
-            self.driver.implicitly_wait(2)       
-            #self.driver.maximize_window()
-              # set the driver window size so that headless will work with sendkeys  
-            logging.info(f"{datetime.now(tz=None)} Search Opera Info operadriver found") 
-        except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Search Opera Fail operadriver not found or driver failed to launch. Process terminated")    
-            sys.exit(1)     
-        return self.driver 
+    
 
    
     def get_the_page(self, driver, url, browse):
@@ -245,7 +219,7 @@ class Search():
 
     def verify_new_url(self, driver, new_url, browse):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
-        time.sleep(3) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
+        time.sleep(4) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
         if driver.current_url == new_url:              
             logging.info(f"{datetime.now(tz=None)} Search {browse} Pass")  
         else: 
@@ -258,7 +232,7 @@ class Search():
         return  
 
 def main():
-    """Selenium VERSION 3.141.0
+    """Selenium VERSION 4.0.0 Alpha 5
     Task: Create a Selenium test to simulate a search on a website and test that a results page is shown. We can start with the
     SoloSegment.com site search as the first site to test with, but we will eventually create a test that can be used with any of
     our client's sites. Simulate entering a keyword for the letter 's' without pressing enter. Results should be a list of suggestions
@@ -268,8 +242,9 @@ def main():
     logging.warning("\n")
     url = "https://solosegment.com/"  
     
-    #for browse in ["Chrome", "Firefox", "Edge", "Safari", "Ie", "Opera" "Legacy"]:    
-    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:
+    
+    #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:  
+    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:        
       
         mysearch = Search(url)     
         if browse == "Chrome":  
@@ -280,8 +255,8 @@ def main():
             driver = mysearch.setUpedge()     # get the handler
         if browse == "IE":
             driver = mysearch.setUpIE()       # get the handler
-        if browse == "Opera":
-            driver = mysearch.setUpOpera()    # get the handler
+        if browse == "Safari":
+            driver = mysearch.setUpsafari()   # get the handler
 
         driver= mysearch.get_the_page(driver, url, browse)         # get the page we want to test
         mysearch.simulate_single_letter_search(driver, 's', browse)    
