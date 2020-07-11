@@ -1,5 +1,6 @@
 """
 DISCUSS WITH MIKE:
+0. Selenium 4 will end support for Opera and headless testing with Phantom.
 1. Selenium v4.0.0-alpha.1    https://www.selenium.dev/selenium/docs/api/javascript/page/Changes.html
 For Opera, users should be able to simply rely on testing Chrome as the Opera browser is based on Chromium
 (and the operadriver was a thin wrapper around chromedriver). 
@@ -268,8 +269,8 @@ def main():
     url = "https://solosegment.com/"  
     
     #for browse in ["Chrome", "Firefox", "Edge", "Safari", "Ie", "Opera" "Legacy"]:    
-    for browse in ["Opera", "Chrome", "Firefox", "Edge","IE"]:
-    #for browse in ["Opera"]:    
+    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:
+      
         mysearch = Search(url)     
         if browse == "Chrome":  
             driver = mysearch.setUpchrome()   # get the handler
