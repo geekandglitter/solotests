@@ -43,12 +43,12 @@ class Search():
 
         try:
             service = Service('c:\\data\\chromedriver\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
-            self.driver = webdriver.Chrome(options=options, service=service)   
+            driver = webdriver.Chrome(options=options, service=service)   
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info  driver found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)   
-        return self.driver         
+        return driver         
 
     def setUpfirefox(self, test_name, browser):
         """Product name: Firefox Nightly Product version: 71.0a1 
@@ -59,12 +59,12 @@ class Search():
         
         try:
             service = Service('c:\\data\\geckodriver\\geckodriver.exe') # Specify the custom path (new for Selenium 4)
-            self.driver = webdriver.Firefox(options=options, service=service)
+            driver = webdriver.Firefox(options=options, service=service)
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
-        return self.driver         
+        return driver         
 
     def setUpedge(self, test_name, browser):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
@@ -76,13 +76,13 @@ class Search():
         options.headless = True # I got this to work by setting the driver window size  
         logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info Looking for driver")  
         try:
-            self.driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options)   
-            self.driver.set_window_size(1600, 1200)  # set the driver window size so that headless will work with sendkeys   
+            driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options)   
+            driver.set_window_size(1600, 1200)  # set the driver window size so that headless will work with sendkeys   
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found")     
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)                     
-        return self.driver # ignore the handshake errors 
+        return driver # ignore the handshake errors 
 
 
     def setUpsafari(self, test_name, browser):
@@ -94,12 +94,12 @@ class Search():
         logging.info(f"{datetime.now(tz=None)} Search Safari Info Looking for driver")  
         try:       
             service = Service('/usr/bin/safaridriver') # Specify the custom path (new for Selenium 4)       
-            self.driver = webdriver.Safari(options=options, service=service)    
+            driver = webdriver.Safari(options=options, service=service)    
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
-        return self.driver 
+        return driver 
 
     def setUpIE(self, test_name, browser):
         """Product name: Selenium WebDriver Product version: 2.42.0.0
@@ -110,15 +110,14 @@ class Search():
         logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info Looking for driver")   
         try:   
             service = Service('c:\\data\\iedriver\\IEDriverServer.exe') # Specify the custom path (new for Selenium 4)  
-            self.driver = webdriver.Ie(service=service)                     
-            self.driver.implicitly_wait(2)
-            self.driver.maximize_window()
+            driver = webdriver.Ie(service=service)                     
+            driver.implicitly_wait(2)
+            driver.maximize_window()
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
-        return self.driver 
-    
+        return driver    
 
    
     def get_the_page(self, driver, test_name, browse):
@@ -135,7 +134,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail URL {self.url} not found. Process terminated")    
             driver.quit()
             sys.exit(1)                 
-        return self.driver
+        return driver
 
     def simulate_single_letter_search(self, driver, test_name, letter, browse):
         """Find the search box and type in a single letter which will force a dropdown"""
