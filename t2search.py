@@ -1,49 +1,4 @@
-"""
 
-
-DISCUSS WITH MIKE:
- 
-1.  
-For Opera, users should be able to simply rely on testing Chrome as the Opera browser is based on Chromium
-(and the operadriver was a thin wrapper around chromedriver). 
-For PhantomJS, users should use Chrome or Firefox in headless mode (see example/headless.js)
-2. Can you ask your developers which browsers they think really must be tested? We have chrome, firefox, IE (headed only), Edge. Do we also need 
-Opera(which is based on CHrome) and Edge Legacy?
-3. RIght now I'm quitting out of the whole script if a driver isn't found. Maybe I should just move on to the next driver
-4. Note: the driver I have doesn't even work in Opera 69.0.3686.57 but it does work in 69.0.3686.47, but Opera keeps updating itself. ALso I see 
-that it doesn't work with the developer version: https://blogs.opera.com/desktop/2020/06/opera-71-developer/. Maybe they've dropped support
-Plus note that Opera has no headless option, and is based on Chromium anyway. Not to mention I can't get rid of that flags error
-5. I don't know but maybe the developers care that I'm not using the unittest module
-
- 
-
-
-NOTES to self:
-1. I have a post with a link on how to use unittest
-2. Also use that same post to refactor the browser set up some more
-3. Find out what this is from Stackoverflow: HTMLTestRunner module combined with unittest provides basic but robust HTML reports.
-4. And this: https://stackoverflow.com/questions/34562061/webdriver-click-vs-javascript-click
-5. I Need to research capabilities options
-6. I might want to switch to implicit waits
- 
-## may or may not need these ### 
-from   selenium.webdriver.support.ui import Select
-from   selenium.common.exceptions import NoAlertPresentException 
-import json
-from selenium.webdriver.support import expected_conditions as EC
-driver.current_url
-driver.title
-
-# The following might be useful for verifying the driver instance:
-driver.name
-driver.orientation
-driver.page_source
-driver.window_handles
-driver.current_window_handle
-driver.desired_capabilities
-################
- 
- """ 
 # System and Module Imports
 import logging 
 import sys
@@ -250,6 +205,8 @@ def main():
     for browse in  [ "Chrome", "Firefox", "Edge","IE"]:        
       
         mysearch = Search(url)     
+        print (mysearch)
+        sys.exit(1) 
         if browse == "Chrome":  
             driver = mysearch.setUpchrome(test_name, browse)   # get the handler
         if browse == "Firefox":
