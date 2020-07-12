@@ -182,10 +182,23 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail with {page.current_url}")           
         return page  
 
-    def tearDown(self, page):         
-        
+    def tearDown(self, page):    
         page.quit()
         return  
+
+
+def get_the_handler(test_name, browse, mysearch):
+    if browse == "Chrome":  
+        driver = mysearch.setUpchrome(test_name, browse)   # get the handler
+    if browse == "Firefox":
+        driver = mysearch.setUpfirefox(test_name, browse)  # get the handler 
+    if browse == "Edge":
+        driver = mysearch.setUpedge(test_name, browse)     # get the handler
+    if browse == "IE":
+        driver = mysearch.setUpIE(test_name, browse)       # get the handler
+    if browse == "Safari":
+        driver = mysearch.setUpsafari(test_name, browse)   # get the handler
+    return(driver)    
 
 def main():
     """Selenium VERSION 4.0.0 Alpha 5 -- In this version, PhantomJS and Opera are no longer supported
@@ -199,30 +212,19 @@ def main():
     
     url = "https://solosegment.com/"  
     test_name = "Search 3"
+    new_url = f"{url}?s=s"
     
     #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:  
-    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:        
+    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      
       
         mysearch = Search(url)     
-        if browse == "Chrome":  
-            driver = mysearch.setUpchrome(test_name, browse)   # get the handler
-        if browse == "Firefox":
-            driver = mysearch.setUpfirefox(test_name, browse)  # get the handler 
-        if browse == "Edge":
-            driver = mysearch.setUpedge(test_name, browse)     # get the handler
-        if browse == "IE":
-            driver = mysearch.setUpIE(test_name, browse)       # get the handler
-        if browse == "Safari":
-            driver = mysearch.setUpsafari(test_name, browse)   # get the handler
-
+        driver = get_the_handler(test_name,browse, mysearch)           # get the handler for the browser
         page= mysearch.get_the_page(driver, test_name, browse)         # get the page we want to test
         mysearch.simulate_single_letter_search(page, test_name, 's', browse)    
         mysearch.find_dropdown(page, test_name, browse)
         mysearch.find_a_suggestion(page, test_name, browse) 
-        new_url = f"{url}?s=s"
         page = mysearch.verify_new_url(page, test_name, new_url, browse)     
         mysearch.tearDown(page)  
-
 
 if __name__ == "__main__":
     main()
