@@ -33,7 +33,22 @@ class Search():
         """This returns better information for the developer when he tries printing the instance"""
         return self.url 
 
-    def setUpchrome(self, test_name, browse):
+
+    def get_the_handler(self, test_name, browse, mysearch):
+        if browse == "Chrome":  
+            driver = mysearch.setUpchrome(test_name, browse, mysearch)   # get the handler
+        elif browse == "Firefox":
+            driver = mysearch.setUpfirefox(test_name, browse, mysearch)  # get the handler 
+        elif browse == "Edge":
+            driver = mysearch.setUpedge(test_name, browse, mysearch)     # get the handler
+        elif browse == "IE":
+            driver = mysearch.setUpIE(test_name, browse, mysearch)       # get the handler
+        elif browse == "Safari":
+            driver = mysearch.setUpsafari(test_name, browse, mysearch)   # get the handler
+        return(driver)    
+    
+
+    def setUpchrome(self, test_name, browse, mysearch):
         """Product name: unavailable Product version: unavailable 
         Running Chrome headless with sendkeys requires a window size"""
         options = webdriver.ChromeOptions()           
@@ -50,7 +65,7 @@ class Search():
             sys.exit(1)   
         return driver         
 
-    def setUpfirefox(self, test_name, browse):
+    def setUpfirefox(self, test_name, browse, mysearch):
         """Product name: Firefox Nightly Product version: 71.0a1 
         Firefox can run headless with sendkeys. (Firefox driver is called GeckoDriver)"""  
         options = Options()
@@ -66,7 +81,7 @@ class Search():
             sys.exit(1)     
         return driver         
 
-    def setUpedge(self, test_name, browse):
+    def setUpedge(self, test_name, browse, mysearch):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
         * Edge gets wordy when it's headless, but at least it's working (by setting window size)
         * At the time of this refactor for Selenium 4, Edge does not yet support the new API, so I'm using the legacy one"""  
@@ -85,7 +100,7 @@ class Search():
         return driver # ignore the handshake errors 
 
 
-    def setUpsafari(self, test_name, browse):
+    def setUpsafari(self, test_name, browse, mysearch):
         """I cannot currently test this safari code beause my only ios is on an old ipad Safari 12.4.7.  
         I posted a writeup on implementing Safari that might be of some help. 
         See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
@@ -101,7 +116,7 @@ class Search():
             sys.exit(1)     
         return driver 
 
-    def setUpIE(self, test_name, browse):
+    def setUpIE(self, test_name, browse, mysearch):
         """Product name: Selenium WebDriver Product version: 2.42.0.0
         IE does not have support for a headless mode
         IE has some other gotchas, too, which I posted in my blog. 
@@ -187,18 +202,6 @@ class Search():
         return  
 
 
-def get_the_handler(test_name, browse, mysearch):
-    if browse == "Chrome":  
-        driver = mysearch.setUpchrome(test_name, browse)   # get the handler
-    if browse == "Firefox":
-        driver = mysearch.setUpfirefox(test_name, browse)  # get the handler 
-    if browse == "Edge":
-        driver = mysearch.setUpedge(test_name, browse)     # get the handler
-    if browse == "IE":
-        driver = mysearch.setUpIE(test_name, browse)       # get the handler
-    if browse == "Safari":
-        driver = mysearch.setUpsafari(test_name, browse)   # get the handler
-    return(driver)    
 
 def main():
     """Selenium VERSION 4.0.0 Alpha 5 -- In this version, PhantomJS and Opera are no longer supported
@@ -208,23 +211,18 @@ def main():
     About this script: https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
     """
 
-    logging.basicConfig(filename='t2search.log', level=logging.INFO)   
-    
+    logging.basicConfig(filename='t2search.log', level=logging.INFO)      
     url = "https://solosegment.com/"  
     test_name = "Search 3"
     new_url = f"{url}?s=s"
-    
-    #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:  
-    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      
-      
+    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:      
         mysearch = Search(url)     
-        driver = get_the_handler(test_name,browse, mysearch)           # get the handler for the browser
-        page= mysearch.get_the_page(driver, test_name, browse)         # get the page we want to test
+        driver = mysearch.get_the_handler(test_name, browse, mysearch)  # get the handler for the browser
+        page= mysearch.get_the_page(driver, test_name, browse)          # get the page we want to test
         mysearch.simulate_single_letter_search(page, test_name, 's', browse)    
         mysearch.find_dropdown(page, test_name, browse)
         mysearch.find_a_suggestion(page, test_name, browse) 
         page = mysearch.verify_new_url(page, test_name, new_url, browse)     
         mysearch.tearDown(page)  
-
 if __name__ == "__main__":
     main()
