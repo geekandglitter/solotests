@@ -121,18 +121,18 @@ class Search():
     
 
    
-    def get_the_page(self, driver, test_name, url, browse):
+    def get_the_page(self, driver, test_name, browse):
         """See if the page is up and then get the page"""
         try:   
-            resp = requests.get(url)  # This is how we have to make sure the URL exists and is obtainable
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for URL {url}")
+            resp = requests.get(self)  # This is how we have to make sure the URL exists and is obtainable
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for URL {self.url}")
             if resp.status_code == 200:                
                 driver.get(self.url)
                 time.sleep(10)   
-                logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info URL {url} found") 
+                logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info URL {self.url} found") 
                 logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Browser Initialized") 
         except:             
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail URL {url} not found. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail URL {self.url} not found. Process terminated")    
             driver.quit()
             sys.exit(1)                 
         return self.driver
@@ -205,8 +205,6 @@ def main():
     for browse in  [ "Chrome", "Firefox", "Edge","IE"]:        
       
         mysearch = Search(url)     
-        print (mysearch)
-        sys.exit(1) 
         if browse == "Chrome":  
             driver = mysearch.setUpchrome(test_name, browse)   # get the handler
         if browse == "Firefox":
@@ -218,7 +216,7 @@ def main():
         if browse == "Safari":
             driver = mysearch.setUpsafari(test_name, browse)   # get the handler
 
-        driver= mysearch.get_the_page(driver, test_name, url, browse)         # get the page we want to test
+        driver= mysearch.get_the_page(driver, test_name, browse)         # get the page we want to test
         mysearch.simulate_single_letter_search(driver, test_name, 's', browse)    
         mysearch.find_dropdown(driver, test_name, browse)
         mysearch.find_a_suggestion(driver, test_name, browse) 
