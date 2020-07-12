@@ -11,11 +11,11 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
-# Browser Imports
+# browser Imports
 from selenium.webdriver.firefox.options import Options
 from msedge.selenium_tools import Edge, EdgeOptions
 from selenium.webdriver.chrome import service
-# Browser Imports for Selenium 4
+# browser Imports for Selenium 4
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.edge.service import Service # couldn't get Service to work for Edge
@@ -33,40 +33,40 @@ class Search():
         """This returns better information for the developer when he tries printing the instance"""
         return self.url 
 
-    def setUpchrome(self, test_name, browser):
+    def setUpchrome(self, test_name, browse):
         """Product name: unavailable Product version: unavailable 
         Running Chrome headless with sendkeys requires a window size"""
         options = webdriver.ChromeOptions()           
         options.add_argument("window-size=1920x1080")
         options.add_argument("headless") 
-        logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info Looking for driver")  
+        logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for driver")  
 
         try:
             service = Service('c:\\data\\chromedriver\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
             driver = webdriver.Chrome(options=options, service=service)   
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info  driver found")  
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info  driver found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)   
         return driver         
 
-    def setUpfirefox(self, test_name, browser):
+    def setUpfirefox(self, test_name, browse):
         """Product name: Firefox Nightly Product version: 71.0a1 
         Firefox can run headless with sendkeys. (Firefox driver is called GeckoDriver)"""  
         options = Options()
         options.headless = True
-        logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info Looking for driver") 
+        logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for driver") 
         
         try:
             service = Service('c:\\data\\geckodriver\\geckodriver.exe') # Specify the custom path (new for Selenium 4)
             driver = webdriver.Firefox(options=options, service=service)
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found")             
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info driver found")             
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
         return driver         
 
-    def setUpedge(self, test_name, browser):
+    def setUpedge(self, test_name, browse):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
         * Edge gets wordy when it's headless, but at least it's working (by setting window size)
         * At the time of this refactor for Selenium 4, Edge does not yet support the new API, so I'm using the legacy one"""  
@@ -74,18 +74,18 @@ class Search():
         options.use_chromium = True          
         #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
         options.headless = True # I got this to work by setting the driver window size  
-        logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info Looking for driver")  
+        logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for driver")  
         try:
             driver = Edge(executable_path='c:\\data\\msedgedriver\\msedgedriver.exe', options = options)   
             driver.set_window_size(1600, 1200)  # set the driver window size so that headless will work with sendkeys   
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found")     
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info driver found")     
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)                     
         return driver # ignore the handshake errors 
 
 
-    def setUpsafari(self, test_name, browser):
+    def setUpsafari(self, test_name, browse):
         """I cannot currently test this safari code beause my only ios is on an old ipad Safari 12.4.7.  
         I posted a writeup on implementing Safari that might be of some help. 
         See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
@@ -95,27 +95,27 @@ class Search():
         try:       
             service = Service('/usr/bin/safaridriver') # Specify the custom path (new for Selenium 4)       
             driver = webdriver.Safari(options=options, service=service)    
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found") 
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info driver found") 
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
         return driver 
 
-    def setUpIE(self, test_name, browser):
+    def setUpIE(self, test_name, browse):
         """Product name: Selenium WebDriver Product version: 2.42.0.0
         IE does not have support for a headless mode
         IE has some other gotchas, too, which I posted in my blog. 
         See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
         """    
-        logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info Looking for driver")   
+        logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for driver")   
         try:   
             service = Service('c:\\data\\iedriver\\IEDriverServer.exe') # Specify the custom path (new for Selenium 4)  
             driver = webdriver.Ie(service=service)                     
             driver.implicitly_wait(2)
             driver.maximize_window()
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Info driver found") 
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info driver found") 
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browser} Fail driver not found or driver failed to launch. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
             sys.exit(1)     
         return driver    
 
@@ -129,62 +129,62 @@ class Search():
                 driver.get(self.url)
                 time.sleep(10)   
                 logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info URL {self.url} found") 
-                logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Browser Initialized") 
+                logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info browse Initialized") 
         except:             
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail URL {self.url} not found. Process terminated")    
             driver.quit()
             sys.exit(1)                 
         return driver
 
-    def simulate_single_letter_search(self, driver, test_name, letter, browse):
+    def simulate_single_letter_search(self, page, test_name, letter, browse):
         """Find the search box and type in a single letter which will force a dropdown"""
         logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for search box")
         try:               
-            elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
+            elem=page.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home page
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Search box found")
         except (NoSuchElementException):
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail Search box not found")    
-            driver.quit()
+            page.quit()
             sys.exit(1)
         elem.send_keys(letter)  
         elem.send_keys(Keys.ENTER)  
         return
  
-    def find_dropdown(self,driver, test_name, browse):
+    def find_dropdown(self, page, test_name, browse):
         """See that we have a search suggestion dropdown"""
         logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for search suggestion dropdown")  
         try:         
             time.sleep(3)   
-            elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/div')
+            elem=page.find_element(By.XPATH, '//*[@id="search-6"]/form/div')
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Found search suggestion dropdown")   
         except (NoSuchElementException):  
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail Search suggestion dropdown not found")    
-            driver.quit()
+            page.quit()
             sys.exit(1)     
 
-    def find_a_suggestion(self,driver, test_name, browse):
+    def find_a_suggestion(self, page, test_name, browse):
         """ Now that we've found the dropdown, it seems reasonable there should be at least one suggestion in the list"""    
         logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Looking for one search suggestion") 
         try:            
-            elem=driver.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
+            elem=page.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Info Found one search suggestion")                
         except (NoSuchElementException):             
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail Search suggestion not found")    
-            driver.quit()
+            page.quit()
             sys.exit(1)  
 
-    def verify_new_url(self, driver, test_name, new_url, browse):       
+    def verify_new_url(self, page, test_name, new_url, browse):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
         time.sleep(4) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
-        if driver.current_url == new_url:              
+        if page.current_url == new_url:              
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Pass")  
         else: 
-            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail with {driver.current_url}")           
-        return driver  
+            logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail with {page.current_url}")           
+        return page  
 
-    def tearDown(self, driver):         
-        #driver.close() 
-        driver.quit()
+    def tearDown(self, page):         
+        
+        page.quit()
         return  
 
 def main():
@@ -215,13 +215,13 @@ def main():
         if browse == "Safari":
             driver = mysearch.setUpsafari(test_name, browse)   # get the handler
 
-        driver= mysearch.get_the_page(driver, test_name, browse)         # get the page we want to test
-        mysearch.simulate_single_letter_search(driver, test_name, 's', browse)    
-        mysearch.find_dropdown(driver, test_name, browse)
-        mysearch.find_a_suggestion(driver, test_name, browse) 
+        page= mysearch.get_the_page(driver, test_name, browse)         # get the page we want to test
+        mysearch.simulate_single_letter_search(page, test_name, 's', browse)    
+        mysearch.find_dropdown(page, test_name, browse)
+        mysearch.find_a_suggestion(page, test_name, browse) 
         new_url = f"{url}?s=s"
-        driver = mysearch.verify_new_url(driver, test_name, new_url, browse)     
-        mysearch.tearDown(driver)  
+        page = mysearch.verify_new_url(page, test_name, new_url, browse)     
+        mysearch.tearDown(page)  
 
 
 if __name__ == "__main__":
