@@ -176,6 +176,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail Search suggestion dropdown not found")    
             page.quit()
             sys.exit(1)     
+        return    
 
     def find_a_suggestion(self, page, test_name, browse):
         """ Now that we've found the dropdown, it seems reasonable there should be at least one suggestion in the list"""    
@@ -187,6 +188,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {test_name} {browse} Fail Search suggestion not found")    
             page.quit()
             sys.exit(1)  
+        return    
 
     def verify_new_url(self, page, test_name, new_url, browse):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
@@ -199,9 +201,7 @@ class Search():
 
     def tearDown(self, page):    
         page.quit()
-        return  
-
-
+        return
 
 def main():
     """Selenium VERSION 4.0.0 Alpha 5 -- In this version, PhantomJS and Opera are no longer supported
