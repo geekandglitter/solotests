@@ -63,8 +63,8 @@ class Search():
             driver = webdriver.Chrome(options=options, service=service)   
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info  driver found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
-            sys.exit(1)   
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail driver not found or driver failed to launch. ")    
+            driver = None  
         return driver         
 
     def setUpfirefox(self, browse, mysearch):
@@ -80,7 +80,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info driver found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
-            sys.exit(1)     
+            driver = None    
         return driver         
 
     def setUpedge(self, browse, mysearch):
@@ -98,7 +98,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info driver found")     
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
-            sys.exit(1)                     
+            driver = None                       
         return driver # ignore the handshake errors 
 
 
@@ -115,7 +115,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info driver found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
-            sys.exit(1)     
+            driver = None       
         return driver 
 
     def setUpIE(self, browse, mysearch):
@@ -133,7 +133,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info driver found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail driver not found or driver failed to launch. Process terminated")    
-            sys.exit(1)     
+            driver = None      
         return driver    
 
    
@@ -216,12 +216,15 @@ def main():
     logging.basicConfig(filename='t2search.log', level=logging.INFO)      
     initial_url = "https://solosegment.com/" 
     landing_url = f"{initial_url}?s=s" #class attribute
+    search_term = 's'
 
-    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:      
+    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
         mysearch = Search(initial_url, landing_url)     
-        driver = mysearch.get_the_handler(browse, mysearch)  # get the handler for the browser
+        driver = mysearch.get_the_handler(browse, mysearch)  # get the handler (aka driver) for the browser
+        if driver == None: # In the vent that the driver is not found or failed to launch,
+            continue # disrupt current iteration so as to go on to the next browser
         page= mysearch.get_the_page(driver, browse)          # get the page we want to test
-        mysearch.simulate_single_letter_search(page, 's', browse)    
+        mysearch.simulate_single_letter_search(page, search_term, browse)    
         mysearch.find_dropdown(page, browse)
         mysearch.find_a_suggestion(page, browse) 
         page = mysearch.verify_landing_url(page, browse)     
