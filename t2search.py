@@ -27,7 +27,8 @@ from selenium.webdriver.ie.service import Service
 class Search():    
     test_name = "Search 3" #class attribute       
 
-    def __init__(self, initial_url, results_url, browse):
+    def __init__(self, initial_url, results_url, browse, keyword):
+        self.keyword = keyword
         self.initial_url = initial_url
         self.results_url = results_url
         self.browse=browse
@@ -154,7 +155,7 @@ class Search():
             sys.exit(1)                 
         return  
 
-    def simulate_keyword_entry(self, keyword):
+    def simulate_keyword_entry(self):
         """Find the search box and type in a single keyword which will force a dropdown"""
         logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for search box")
         try:               
@@ -164,7 +165,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail Search box not found")    
             self.handler.quit()
             sys.exit(1)
-        elem.send_keys(keyword)  
+        elem.send_keys(self.keyword)  
         elem.send_keys(Keys.ENTER)  
         return
  
@@ -217,15 +218,15 @@ def main():
     logging.basicConfig(filename='t2search.log', level=logging.INFO)      
     initial_url = "https://solosegment.com/" 
     results_url = f"{initial_url}?s=s" #class attribute
-    keyword = 's'
+    keyword = "s"
 
     for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
-        mysearch = Search(initial_url, results_url, browse)     
+        mysearch = Search(initial_url, results_url, browse, keyword)     
         #handler = mysearch.get_the_handler(browse, mysearch)  # get the handler (aka driver) for the browser
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
             continue # go on to the next browser
         mysearch.start_the_session()          # start the session we want to test
-        mysearch.simulate_keyword_entry(keyword)    
+        mysearch.simulate_keyword_entry()    
         mysearch.find_dropdown()
         mysearch.find_a_suggestion()
         mysearch.verify_results_url()     
