@@ -25,7 +25,7 @@ from selenium.webdriver.ie.service import Service
  
 
 class Search():    
-    test_name = "Search 3" #class attribute       
+    test_name = "Search 2" #class attribute       
 
     def __init__(self, initial_url, results_url):
         self.initial_url = initial_url
