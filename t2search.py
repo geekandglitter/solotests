@@ -138,7 +138,7 @@ class Search():
         return handler    
 
    
-    def get_the_session(self):
+    def start_the_session(self):
         """See if the session is up and then get the session"""
         try:   
             resp = requests.get(self.initial_url)  # This is how we have to make sure the URL exists and is obtainable
@@ -152,58 +152,58 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail URL {self.initial_url} not found. Process terminated")    
             self.handler.quit()
             sys.exit(1)                 
-        return self.handler
+        return  
 
-    def simulate_keyword_entry(self, session, keyword):
+    def simulate_keyword_entry(self, keyword):
         """Find the search box and type in a single keyword which will force a dropdown"""
         logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for search box")
         try:               
-            elem=session.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home session
+            elem=self.handler.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home session
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Search box found")
         except (NoSuchElementException):
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail Search box not found")    
-            session.quit()
+            self.handler.quit()
             sys.exit(1)
         elem.send_keys(keyword)  
         elem.send_keys(Keys.ENTER)  
         return
  
-    def find_dropdown(self, session):
+    def find_dropdown(self):
         """See that we have a search suggestion dropdown"""
         logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for search suggestion dropdown")  
         try:         
             time.sleep(3)   
-            elem=session.find_element(By.XPATH, '//*[@id="search-6"]/form/div')
+            elem=self.handler.find_element(By.XPATH, '//*[@id="search-6"]/form/div')
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Found search suggestion dropdown")   
         except (NoSuchElementException):  
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail Search suggestion dropdown not found")    
-            session.quit()
+            self.handler.quit()
             sys.exit(1)     
         return    
 
-    def find_a_suggestion(self, session):
+    def find_a_suggestion(self):
         """ Now that we've found the dropdown, it seems reasonable there should be at least one suggestion in the list"""    
         logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for one search suggestion") 
         try:            
-            elem=session.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
+            elem=self.handler.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Found one search suggestion")                
         except (NoSuchElementException):             
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail Search suggestion not found")    
-            session.quit()
+            self.handler.quit()
             sys.exit(1)  
         return    
 
-    def verify_results_url(self, session):       
+    def verify_results_url(self):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
         time.sleep(4) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
-        if session.current_url == self.results_url:              
+        if self.handler.current_url == self.results_url:              
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Pass")  
         else: 
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail with {session.current_url} not equal to {self.results_url}")           
-        return session  
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail with {self.handler.current_url} not equal to {self.results_url}")           
+        return    
 
-    def tearDown(self, session):    
-        session.quit()
+    def tearDown(self):    
+        self.handler.quit()
         return
 
 def main():
@@ -224,11 +224,11 @@ def main():
         #handler = mysearch.get_the_handler(browse, mysearch)  # get the handler (aka driver) for the browser
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
             continue # go on to the next browser
-        session= mysearch.get_the_session()          # get the session we want to test
-        mysearch.simulate_keyword_entry(session, keyword)    
-        mysearch.find_dropdown(session)
-        mysearch.find_a_suggestion(session) 
-        mysearch.verify_results_url(session)     
-        mysearch.tearDown(session)  
+        mysearch.start_the_session()          # start the session we want to test
+        mysearch.simulate_keyword_entry(keyword)    
+        mysearch.find_dropdown()
+        mysearch.find_a_suggestion()
+        mysearch.verify_results_url()     
+        mysearch.tearDown()  
 if __name__ == "__main__":
     main()
