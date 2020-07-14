@@ -25,33 +25,37 @@ from selenium.webdriver.ie.service import Service
  
 
 class Search():    
-    test_name = "Search 2" #class attribute       
+    test_name = "Search 3" #class attribute       
 
-    def __init__(self, initial_url, results_url):
+    def __init__(self, initial_url, results_url, browse):
         self.initial_url = initial_url
         self.results_url = results_url
+        self.browse=browse
+        if browse == "Chrome":  
+            handler = self.setUpchrome(browse)   # get the handler
+        elif browse == "Firefox":
+            handler = self.setUpfirefox (browse)  # get the handler 
+        elif browse == "Edge":
+            handler = self.setUpedge(browse)     # get the handler
+        elif browse == "IE":
+            handler = self.setUpIE(browse)       # get the handler
+        elif browse == "Safari":
+            handler = self.setUpsafari(browse)   # get the handler
+        self.handler=handler
+        """From Bob: I personally would like to extend the init function more to let you pass in what driver you want to use as well, 
+        That way you can kind of pre-call all of the setup commands as well w/o having to know too deeply the inner workings of that. """
+
+        
+
 
     def __repr__(self):
         """This returns better information for the developer when he tries printing the instance"""
         return f"Initial URL is {self.initial_url}\nLanding URL is {self.results_url}"
-
-
-    def get_the_handler(self, browse, mysearch):
-        """Find the correct browser handler (also called a driver)"""
-        if browse == "Chrome":  
-            handler = mysearch.setUpchrome(browse, mysearch)   # get the handler
-        elif browse == "Firefox":
-            handler = mysearch.setUpfirefox (browse, mysearch)  # get the handler 
-        elif browse == "Edge":
-            handler = mysearch.setUpedge(browse, mysearch)     # get the handler
-        elif browse == "IE":
-            handler = mysearch.setUpIE(browse, mysearch)       # get the handler
-        elif browse == "Safari":
-            handler = mysearch.setUpsafari(browse, mysearch)   # get the handler
-        return(handler)    
+ 
+        
     
 
-    def setUpchrome(self, browse, mysearch):
+    def setUpchrome(self, browse):
         """Product name: unavailable Product version: unavailable 
         Running Chrome headless with sendkeys requires a window size"""
         options = webdriver.ChromeOptions()           
@@ -68,7 +72,7 @@ class Search():
             handler = None  
         return handler         
 
-    def setUpfirefox(self, browse, mysearch):
+    def setUpfirefox(self, browse):
         """Product name: Firefox Nightly Product version: 71.0a1 
         Firefox can run headless with sendkeys. (Firefox handler is called GeckoDriver)"""  
         options = Options()
@@ -84,7 +88,7 @@ class Search():
             handler = None    
         return handler      
 
-    def setUpedge(self, browse, mysearch):
+    def setUpedge(self, browse):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
         * Edge gets wordy when it's headless, but at least it's working (by setting window size)
         * At the time of this refactor for Selenium 4, Edge does not yet support the new API, so I'm using the legacy one"""  
@@ -103,7 +107,7 @@ class Search():
         return handler # ignore the handshake errors 
 
 
-    def setUpsafari(self, browse, mysearch):
+    def setUpsafari(self, browse):
         """I cannot currently test this safari code beause my only ios is on an old ipad Safari 12.4.7.  
         I posted a writeup on implementing Safari that might be of some help. 
         See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
@@ -119,7 +123,7 @@ class Search():
             handler = None       
         return handler 
 
-    def setUpIE(self, browse, mysearch):
+    def setUpIE(self, browse):
         """Product name: Selenium WebDriver Product version: 2.42.0.0
         IE does not have support for a headless mode
         IE has some other gotchas, too, which I posted in my blog. 
@@ -138,24 +142,24 @@ class Search():
         return handler    
 
    
-    def get_the_session(self, handler, browse):
+    def get_the_session(self, browse):
         """See if the session is up and then get the session"""
         try:   
             resp = requests.get(self.initial_url)  # This is how we have to make sure the URL exists and is obtainable
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Looking for URL {self.initial_url}")
             if resp.status_code == 200:                
-                handler.get(self.initial_url)
+                self.handler.get(self.initial_url)
                 time.sleep(10)   
                 logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info URL {self.initial_url} found") 
                 logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info browse Initialized") 
         except:             
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail URL {self.initial_url} not found. Process terminated")    
-            handler.quit()
+            self.handler.quit()
             sys.exit(1)                 
-        return handler
+        return self.handler
 
-    def simulate_keyword_entry(self, session, letter, browse):
-        """Find the search box and type in a single letter which will force a dropdown"""
+    def simulate_keyword_entry(self, session, keyword, browse):
+        """Find the search box and type in a single keyword which will force a dropdown"""
         logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Looking for search box")
         try:               
             elem=session.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home session
@@ -164,7 +168,7 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail Search box not found")    
             session.quit()
             sys.exit(1)
-        elem.send_keys(letter)  
+        elem.send_keys(keyword)  
         elem.send_keys(Keys.ENTER)  
         return
  
@@ -210,7 +214,7 @@ def main():
     """Selenium VERSION 4.0.0 Alpha 5 -- In this version, PhantomJS and Opera are no longer supported
     Task: Create a Selenium test to simulate a search on a website and test that a results session is shown. We can start with the
     SoloSegment.com site search as the first site to test with, but we will eventually create a test that can be used with any of
-    our client's sites. Simulate entering a keyword for the letter 's' without pressing enter. Results should be a list of suggestions
+    our client's sites. Simulate entering a keyword for the keyword 's' without pressing enter. Results should be a list of suggestions
     About this script: https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
     """
 
@@ -220,11 +224,11 @@ def main():
     keyword = 's'
 
     for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
-        mysearch = Search(initial_url, results_url)     
-        handler = mysearch.get_the_handler(browse, mysearch)  # get the handler (aka driver) for the browser
-        if handler == None: # In the event that the handler is not found or failed to launch,
+        mysearch = Search(initial_url, results_url, browse)     
+        #handler = mysearch.get_the_handler(browse, mysearch)  # get the handler (aka driver) for the browser
+        if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
             continue # go on to the next browser
-        session= mysearch.get_the_session(handler, browse)          # get the session we want to test
+        session= mysearch.get_the_session(browse)          # get the session we want to test
         mysearch.simulate_keyword_entry(session, keyword, browse)    
         mysearch.find_dropdown(session, browse)
         mysearch.find_a_suggestion(session, browse) 
