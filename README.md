@@ -1,4 +1,4 @@
 # solotests
-Selenium playback testing for 
+Selenium playback testing 
 
-A series of tests for automated playback using Selenium
+Browser compatability testing for solosegment.com using Selenium playback
