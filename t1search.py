@@ -106,39 +106,37 @@ def tear_down(driver, test_name, browser):
 
 def main():
     """This script runs two search box tests, each on two browsers"""
-    url = "https://solosegment.com/"   
-    
+    url = "https://solosegment.com/"       
     keyword = "solo_search"  
     logging.basicConfig(filename='t1search.log', level=logging.INFO)   
 
 
-    logging.info(f"{datetime.now(tz=None)} Search 1 Firefox Info Starting")
-    driver = firefox_setup(url, "Search 1", "Firefox" )
-    simulate_search_enter(driver, keyword, "Search1" , "Firefox")  
-    msg = verify_new_url(driver, keyword, "Search 1", "Firefox")          
-    tear_down(driver, "Search 1", "Firefox")     
+    logging.info(f"{datetime.now(tz=None)} Search 1 Enter Firefox Info Starting")
+    driver = firefox_setup(url, "Search 1 Enter", "Firefox" )
+    simulate_search_enter(driver, keyword, "Search 1 Enter" , "Firefox")  
+    msg = verify_new_url(driver, keyword, "Search 1 Enter", "Firefox")          
+    tear_down(driver, "Search 1 Enter", "Firefox")     
     
-    logging.info(f"{datetime.now(tz=None)} Search 2 Firefox Info Starting")
-    driver = firefox_setup(url, "Search 2", "Firefox")
-    simulate_search_icon(driver, keyword, "Search 2", "Firefox")   
-    msg = verify_new_url(driver, keyword, "Search 2", "Firefox")          
-    tear_down(driver, "Search 2", "Firefox") 
+    logging.info(f"{datetime.now(tz=None)} Search 1 Icon Firefox Info Starting")
+    driver = firefox_setup(url, "Search 1 Icon", "Firefox")
+    simulate_search_icon(driver, keyword, "Search 1 Icon", "Firefox")   
+    msg = verify_new_url(driver, keyword, "Search 1 Icon", "Firefox")          
+    tear_down(driver, "Search 1 Icon", "Firefox") 
 
-    logging.info(f"{datetime.now(tz=None)} Search 1 Chrome Info Starting")
-    driver = chrome_setup(url, "Search 1", "Chrome")   
-    simulate_search_enter(driver, keyword, "Search 1", "Chrome") 
-    msg = verify_new_url(driver, keyword, "Search 1", "Chrome") 
-    tear_down(driver, "Search 1", "Chrome")    
+    logging.info(f"{datetime.now(tz=None)} Search 1 Enter Chrome Info Starting")
+    driver = chrome_setup(url, "Search 1 Enter", "Chrome")   
+    simulate_search_enter(driver, keyword, "Search 1 Enter", "Chrome") 
+    msg = verify_new_url(driver, keyword, "Search 1 Enter", "Chrome") 
+    tear_down(driver, "Search 1 Enter", "Chrome")    
 
-    logging.info(f"{datetime.now(tz=None)} Search 2 Chrome Info Starting")
-    driver = chrome_setup(url,"Search 2", "Chrome")
-    simulate_search_icon(driver, keyword, "Search 2", "Chrome") 
-    msg = verify_new_url(driver, keyword, "Search 2", "Chrome")          
-    tear_down(driver, "Search 2", "Chrome")     
+    logging.info(f"{datetime.now(tz=None)} Search 1 Icon Chrome Info Starting")
+    driver = chrome_setup(url,"Search 1 Icon", "Chrome")
+    simulate_search_icon(driver, keyword, "Search 1 Icon", "Chrome") 
+    msg = verify_new_url(driver, keyword, "Search 1 Icon", "Chrome")          
+    tear_down(driver, "Search 1 Icon", "Chrome")     
 
 if __name__=="__main__":
     main()
 
- 
  
  
