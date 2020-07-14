@@ -34,7 +34,7 @@ class Search():
         if browse == "Chrome":  
             handler = self.setUpchrome(browse)   # get the handler
         elif browse == "Firefox":
-            handler = self.setUpfirefox (browse)  # get the handler 
+            handler = self.setUpfirefox (browse) # get the handler 
         elif browse == "Edge":
             handler = self.setUpedge(browse)     # get the handler
         elif browse == "IE":
@@ -45,15 +45,11 @@ class Search():
         """From Bob: I personally would like to extend the init function more to let you pass in what driver you want to use as well, 
         That way you can kind of pre-call all of the setup commands as well w/o having to know too deeply the inner workings of that. """
 
-        
-
-
     def __repr__(self):
         """This returns better information for the developer when he tries printing the instance"""
         return f"Initial URL is {self.initial_url}\nLanding URL is {self.results_url}"
  
-        
-    
+     
 
     def setUpchrome(self, browse):
         """Product name: unavailable Product version: unavailable 
@@ -142,68 +138,68 @@ class Search():
         return handler    
 
    
-    def get_the_session(self, browse):
+    def get_the_session(self):
         """See if the session is up and then get the session"""
         try:   
             resp = requests.get(self.initial_url)  # This is how we have to make sure the URL exists and is obtainable
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Looking for URL {self.initial_url}")
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for URL {self.initial_url}")
             if resp.status_code == 200:                
                 self.handler.get(self.initial_url)
                 time.sleep(10)   
-                logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info URL {self.initial_url} found") 
-                logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info browse Initialized") 
+                logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info URL {self.initial_url} found") 
+                logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info browse Initialized") 
         except:             
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail URL {self.initial_url} not found. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail URL {self.initial_url} not found. Process terminated")    
             self.handler.quit()
             sys.exit(1)                 
         return self.handler
 
-    def simulate_keyword_entry(self, session, keyword, browse):
+    def simulate_keyword_entry(self, session, keyword):
         """Find the search box and type in a single keyword which will force a dropdown"""
-        logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Looking for search box")
+        logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for search box")
         try:               
             elem=session.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home session
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Search box found")
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Search box found")
         except (NoSuchElementException):
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail Search box not found")    
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail Search box not found")    
             session.quit()
             sys.exit(1)
         elem.send_keys(keyword)  
         elem.send_keys(Keys.ENTER)  
         return
  
-    def find_dropdown(self, session, browse):
+    def find_dropdown(self, session):
         """See that we have a search suggestion dropdown"""
-        logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Looking for search suggestion dropdown")  
+        logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for search suggestion dropdown")  
         try:         
             time.sleep(3)   
             elem=session.find_element(By.XPATH, '//*[@id="search-6"]/form/div')
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Found search suggestion dropdown")   
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Found search suggestion dropdown")   
         except (NoSuchElementException):  
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail Search suggestion dropdown not found")    
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail Search suggestion dropdown not found")    
             session.quit()
             sys.exit(1)     
         return    
 
-    def find_a_suggestion(self, session, browse):
+    def find_a_suggestion(self, session):
         """ Now that we've found the dropdown, it seems reasonable there should be at least one suggestion in the list"""    
-        logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Looking for one search suggestion") 
+        logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Looking for one search suggestion") 
         try:            
             elem=session.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Info Found one search suggestion")                
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Info Found one search suggestion")                
         except (NoSuchElementException):             
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail Search suggestion not found")    
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail Search suggestion not found")    
             session.quit()
             sys.exit(1)  
         return    
 
-    def verify_results_url(self, session, browse):       
+    def verify_results_url(self, session):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
         time.sleep(4) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
         if session.current_url == self.results_url:              
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Pass")  
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Pass")  
         else: 
-            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {browse} Fail with {session.current_url} not equal to {self.results_url}")           
+            logging.info(f"{datetime.now(tz=None)} {Search.test_name} {self.browse} Fail with {session.current_url} not equal to {self.results_url}")           
         return session  
 
     def tearDown(self, session):    
@@ -228,11 +224,11 @@ def main():
         #handler = mysearch.get_the_handler(browse, mysearch)  # get the handler (aka driver) for the browser
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
             continue # go on to the next browser
-        session= mysearch.get_the_session(browse)          # get the session we want to test
-        mysearch.simulate_keyword_entry(session, keyword, browse)    
-        mysearch.find_dropdown(session, browse)
-        mysearch.find_a_suggestion(session, browse) 
-        mysearch.verify_results_url(session, browse)     
+        session= mysearch.get_the_session()          # get the session we want to test
+        mysearch.simulate_keyword_entry(session, keyword)    
+        mysearch.find_dropdown(session)
+        mysearch.find_a_suggestion(session) 
+        mysearch.verify_results_url(session)     
         mysearch.tearDown(session)  
 if __name__ == "__main__":
     main()
