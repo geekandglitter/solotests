@@ -100,23 +100,39 @@ class Search():
             logging.info(f"{datetime.now(tz=None)} Fail Edge browser handler not found or failed to launch.")    
             handler = None                       
         return handler # ignore the handshake errors 
+ 
 
 
-    def setUpsafari(self):
-        """I cannot currently test this safari code beause my only ios is on an old ipad Safari 12.4.7.  
-        I posted a writeup on implementing Safari that might be of some help. 
-        See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
-        """ 
-        return
+    def setUpsafari(self): # this works with both selenium 3 and selenium 4
         logging.info(f"{datetime.now(tz=None)} Info Looking for Safari browser handler")  
-        try:       
-            service = Service('selenium_deps\\drivers\\safaridriver.exe') # Specify the custom path (new for Selenium 4)       
-            handler = webdriver.Safari(options=options, service=service)    
-            logging.info(f"{datetime.now(tz=None)} Info Safari browser handler found") 
+        try:
+            handler = webdriver.Safari (executable_path='/usr/bin/safaridriver')
+            handler.maximize_window()                
+            logging.info
+            (f"{datetime.now(tz=None)} Info Safari browser handler found")
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Safari browser handler not found or failed to launch.")    
-            handler = None       
+            handler = None      
         return handler 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def setUpIE(self):
         """Product name: Selenium WebDriver Product version: 2.42.0.0
