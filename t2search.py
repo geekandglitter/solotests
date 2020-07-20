@@ -1,3 +1,4 @@
+
 # System and Module Imports
 import logging 
 import sys
@@ -39,8 +40,9 @@ class Search():
             handler = self.setUpedge()     # get the handler
         elif browse == "IE":
             handler = self.setUpIE()       # get the handler
-        elif browse == "Safari":
+        """elif browse == "Safari":
             handler = self.setUpsafari()   # get the handler
+        """     
         self.handler=handler
       
 
@@ -216,7 +218,7 @@ def main():
     results_url = f"{initial_url}?s=s" #class attribute
     keyword = "s"
 
-    for browse in  ["Safari", "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
+    for browse in  ["Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
         mysearch = Search(initial_url, results_url, browse, keyword)     
          
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
