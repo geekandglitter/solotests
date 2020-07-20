@@ -116,24 +116,6 @@ class Search():
         return handler 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def setUpIE(self):
         """Product name: Selenium WebDriver Product version: 2.42.0.0
         IE does not have support for a headless mode
@@ -234,7 +216,7 @@ def main():
     results_url = f"{initial_url}?s=s" #class attribute
     keyword = "s"
 
-    for browse in  [ "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
+    for browse in  ["Safari" "Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
         mysearch = Search(initial_url, results_url, browse, keyword)     
          
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
