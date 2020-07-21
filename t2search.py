@@ -21,7 +21,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.edge.service import Service # couldn't get Service to work for Edge
 from selenium.webdriver.safari.service import Service # untested of course
 from selenium.webdriver.ie.service import Service
-
+# Determine which platform
+import os
+import platform
  
 
 class Search():    
@@ -40,9 +42,9 @@ class Search():
             handler = self.setUpedge()     # get the handler
         elif browse == "IE":
             handler = self.setUpIE()       # get the handler
-        """elif browse == "Safari":
+        elif browse == "Safari":
             handler = self.setUpsafari()   # get the handler
-        """     
+         
         self.handler=handler
       
 
@@ -109,7 +111,7 @@ class Search():
         logging.info(f"{datetime.now(tz=None)} Info Looking for Safari browser handler")  
         try:
             handler = webdriver.Safari (executable_path='/usr/bin/safaridriver')
-            handler.maximize_window()                
+            handler.maximize_window() # necessary for sendkeys to work           
             logging.info
             (f"{datetime.now(tz=None)} Info Safari browser handler found")
         except (WebDriverException):
@@ -217,8 +219,17 @@ def main():
     initial_url = "https://solosegment.com/" 
     results_url = f"{initial_url}?s=s" #class attribute
     keyword = "s"
+    
+    if platform.system()=="Windows":
+        browser_set = ["Chrome", "Firefox", "Edge","IE"]
+    elif platform.system()=="Darwin":
+        browser_set=["Safari"] 
+    elif platform.system()=="Linux":   
+        logging.info(f"{datetime.now(tz=None)} {platform.system()} not supported")  
+        sys.exit(1)     
 
-    for browse in  ["Chrome", "Firefox", "Edge","IE"]:      #for browse in  [ "Chrome", "Firefox", "Edge","IE", "Safari"]:           
+    for browse in browser_set:      
+              
         mysearch = Search(initial_url, results_url, browse, keyword)     
          
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
