@@ -13,7 +13,10 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 # browser Imports
 from selenium.webdriver.firefox.options import Options
-from msedge.selenium_tools import Edge, EdgeOptions
+try:
+    from msedge.selenium_tools import Edge, EdgeOptions
+except:
+    pass 
 from selenium.webdriver.chrome import service
 # browser Imports for Selenium 4
 from selenium.webdriver.firefox.service import Service
@@ -27,13 +30,16 @@ import platform
  
 
 class Search():    
-    test_name = "Search 3" #class attribute       
+    test_name = "Search 3" #class attribute      
+    import selenium
+    selenium_ver = selenium.__version__[0]   # Find out if we are running Selenium 4 or 3 (they have different API's)
 
-    def __init__(self, initial_url, results_url, browse, keyword):
+    def __init__(self, initial_url, results_url, browse, keyword, running_platform):
         self.keyword = keyword
         self.initial_url = initial_url
         self.results_url = results_url
         self.browse=browse
+        self.running_platform=running_platform
         if browse == "Chrome":  
             handler = self.setUpchrome()   # get the handler
         elif browse == "Firefox":
@@ -62,9 +68,12 @@ class Search():
         options.add_argument("headless") 
         logging.info(f"{datetime.now(tz=None)} Info Looking for Chrome browser handler")  
 
-        try:
-            service = Service('selenium_deps\\drivers\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
-            handler = webdriver.Chrome(options=options, service=service)   
+        try:             
+            if Search.selenium_ver == "4" and self.running_platform!='Darwin':                 
+                service = Service('selenium_deps\\drivers\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
+                handler = webdriver.Chrome(options=options, service=service)   
+            else:
+                handler = webdriver.Chrome(options=options, executable_path='selenium_deps\\drivers\\chromedriver.exe')    
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Chrome browser handler not found or failed to launch.")    
@@ -152,8 +161,10 @@ class Search():
         except:             
             logging.info(f"{datetime.now(tz=None)} Fail URL {self.initial_url} not found. Process terminated")    
             self.handler.quit()
-            sys.exit(1)                 
-        return  
+            sys.exit(1)  
+        import selenium
+        selenium_ver= selenium.__version__[0]                   
+        return selenium_ver 
 
     def simulate_keyword_entry(self):
         """Find the search box and type in a single keyword which will force a dropdown"""
@@ -215,23 +226,25 @@ def main():
     About this script: https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
     """
 
-    logging.basicConfig(filename='t2search.log', level=logging.INFO)      
+    logging.basicConfig(filename='t2search.log', level=logging.INFO)        
     initial_url = "https://solosegment.com/" 
     results_url = f"{initial_url}?s=s" #class attribute
     keyword = "s"
+     
+    running_platform = platform.system()
     
-    if platform.system()=="Windows":
-        browser_set = ["Chrome", "Firefox", "Edge","IE"]
-    elif platform.system()=="Darwin":
+    if running_platform =="Windows":
+        browser_set = ["Chrome", "Firefox", "Edge","IE"]       
+         
+    elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Safari"] 
-    elif platform.system()=="Linux":   
-        logging.info(f"{datetime.now(tz=None)} {platform.system()} not supported")  
+         
+    elif running_platform =="Linux":   
+        logging.info(f"{datetime.now(tz=None)} {running_platform} not yet supported")  
         sys.exit(1)     
 
-    for browse in browser_set:      
-              
-        mysearch = Search(initial_url, results_url, browse, keyword)     
-         
+    for browse in browser_set:                   
+        mysearch = Search(initial_url, results_url, browse, keyword, running_platform)              
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
             continue # go on to the next browser
         mysearch.start_the_session()          # start the session we want to test
