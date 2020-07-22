@@ -72,8 +72,10 @@ class Search():
             if Search.selenium_ver == "4" and self.running_platform!='Darwin':                 
                 service = Service('selenium_deps\\drivers\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
                 handler = webdriver.Chrome(options=options, service=service)   
-            else:
-                handler = webdriver.Chrome(options=options, executable_path='selenium_deps\\drivers\\chromedriver.exe')    
+            elif self.running_platform=="Darwin":
+                handler = webdriver.Chrome(options=options, executable_path='selenium_deps/drivers/chromedriver')    
+            else: 
+                handler = webdriver.Chrome(options=options,executable_path='selenium_deps\\drivers\\chromedriver.exe')      
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Chrome browser handler not found or failed to launch.")    
@@ -88,8 +90,13 @@ class Search():
         logging.info(f"{datetime.now(tz=None)} Info Looking for Firefox browser handler") 
         
         try:
-            service = Service('selenium_deps\\drivers\\geckodriver.exe') # Specify the custom path (new for Selenium 4)
-            handler = webdriver.Firefox(options=options, service=service)
+            if Search.selenium_ver == "4" and self.running_platform!="Darwin":
+                service = Service('selenium_deps\\drivers\\geckodriver.exe') # Specify the custom path (new for Selenium 4)
+                handler = webdriver.Firefox(options=options, service=service)
+            elif self.running_platform=="Darwin":
+                handler = webdriver.Firefox(options=options,executable_path='selenium_deps/drivers/geckodriver') 
+            else:     
+                handler = webdriver.Firefox(options=options,executable_path='selenium_deps\\drivers\\geckodriver.exe')  
             logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Firefox browser handler not found or failed to launch.")    
@@ -229,15 +236,14 @@ def main():
     logging.basicConfig(filename='t2search.log', level=logging.INFO)        
     initial_url = "https://solosegment.com/" 
     results_url = f"{initial_url}?s=s" #class attribute
-    keyword = "s"
-     
+    keyword = "s"     
     running_platform = platform.system()
     
     if running_platform =="Windows":
         browser_set = ["Chrome", "Firefox", "Edge","IE"]       
          
     elif running_platform =="Darwin": # Darwin is a mac
-        browser_set=["Safari"] 
+        browser_set=["Safari", "Chrome"] # still haven't gotten geckodriver (firefox) to work
          
     elif running_platform =="Linux":   
         logging.info(f"{datetime.now(tz=None)} {running_platform} not yet supported")  
