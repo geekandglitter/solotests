@@ -41,18 +41,16 @@ class Search():
         self.results_url = results_url
         self.browse=browse
         self.running_platform=running_platform
-        if browse == "Chrome":  
-            handler = self.setUpchrome()   # get the handler
+        if self.browse == "Chrome":  
+            self.handler = self.setUpchrome()   # get the handler
         elif browse == "Firefox":
-            handler = self.setUpfirefox () # get the handler 
+            self.handler = self.setUpfirefox()  # get the handler 
         elif browse == "Edge":
-            handler = self.setUpedge()     # get the handler
+            self.handler = self.setUpedge()     # get the handler
         elif browse == "IE":
-            handler = self.setUpIE()       # get the handler
+            self.handler = self.setUpIE()       # get the handler
         elif browse == "Safari":
-            handler = self.setUpsafari()   # get the handler
-         
-        self.handler=handler
+            self.handler = self.setUpsafari()   # get the handler          
       
 
     def __repr__(self):
