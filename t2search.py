@@ -33,6 +33,7 @@ class Search():
     test_name = "Search 3" #class attribute      
     import selenium
     selenium_ver = selenium.__version__[0]   # Find out if we are running Selenium 4 or 3 (they have different API's)
+    print("Selenium version is", selenium_ver)
 
     def __init__(self, initial_url, results_url, browse, keyword, running_platform):
         self.keyword = keyword
@@ -68,14 +69,14 @@ class Search():
         options.add_argument("headless") 
         logging.info(f"{datetime.now(tz=None)} Info Looking for Chrome browser handler")  
 
-        try:             
-            if Search.selenium_ver == "4" and self.running_platform!='Darwin':                 
+        try:   
+            if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
+                handler = webdriver.Chrome(options=options, executable_path='selenium_deps/drivers/chromedriver')   
+            elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version
                 service = Service('selenium_deps\\drivers\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
-                handler = webdriver.Chrome(options=options, service=service)   
-            elif self.running_platform=="Darwin":
-                handler = webdriver.Chrome(options=options, executable_path='selenium_deps/drivers/chromedriver')    
+                handler = webdriver.Chrome(options=options, service=service)  
             else: 
-                handler = webdriver.Chrome(options=options,executable_path='selenium_deps\\drivers\\chromedriver.exe')      
+                handler = webdriver.Chrome(options=options,executable_path='selenium_deps\\drivers\\chromedriver.exe')        
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Chrome browser handler not found or failed to launch.")    
@@ -90,11 +91,11 @@ class Search():
         logging.info(f"{datetime.now(tz=None)} Info Looking for Firefox browser handler") 
         
         try:
-            if Search.selenium_ver == "4" and self.running_platform!="Darwin":
+            if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
+                handler = webdriver.Firefox(options=options,executable_path='selenium_deps/drivers/geckodriver')  
+            elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version
                 service = Service('selenium_deps\\drivers\\geckodriver.exe') # Specify the custom path (new for Selenium 4)
                 handler = webdriver.Firefox(options=options, service=service)
-            elif self.running_platform=="Darwin":
-                handler = webdriver.Firefox(options=options,executable_path='selenium_deps/drivers/geckodriver') 
             else:     
                 handler = webdriver.Firefox(options=options,executable_path='selenium_deps\\drivers\\geckodriver.exe')  
             logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
@@ -112,7 +113,7 @@ class Search():
         #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
         options.headless = True # I got this to work by setting the handler window size  
         logging.info(f"{datetime.now(tz=None)} Info Looking for Edge browser handler")  
-        try:
+        try:        
             handler = Edge(executable_path='selenium_deps\\drivers\\msedgedriver.exe', options = options)   
             handler.set_window_size(1600, 1200)  # set the browser handler window size so that headless will work with sendkeys   
             logging.info(f"{datetime.now(tz=None)} Info Edge browser handler found")     
@@ -123,7 +124,7 @@ class Search():
  
 
 
-    def setUpsafari(self): # this works with both selenium 3 and selenium 4
+    def setUpsafari(self): # this Selenium (3) legacy API code works with both selenium 3 and selenium 4
         logging.info(f"{datetime.now(tz=None)} Info Looking for Safari browser handler")  
         try:
             handler = webdriver.Safari (executable_path='/usr/bin/safaridriver')
@@ -137,15 +138,19 @@ class Search():
 
 
     def setUpIE(self):
-        """Product name: Selenium WebDriver Product version: 2.42.0.0
+        """Product name: Selenium WebDriver Product version: 2.42.0.0        
         IE does not have support for a headless mode
         IE has some other gotchas, too, which I posted in my blog. 
         See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
         """    
         logging.info(f"{datetime.now(tz=None)} Info Looking for IE browser handler")   
-        try:   
-            service = Service('selenium_deps\\drivers\\IEDriverServer.exe') # Specify the custom path (new for Selenium 4)  
-            handler = webdriver.Ie(service=service)                     
+        try:  
+            if Search.selenium_ver == "4":
+
+                service = Service('selenium_deps\\drivers\\IEDriverServer.exe') # Specify the custom path (new for Selenium 4)  
+                handler = webdriver.Ie(service=service)     
+            else:
+                handler = webdriver.Ie(executable_path = 'selenium_deps\\drivers\\IEDriverServer.exe')                 
             handler.implicitly_wait(2)
             handler.maximize_window()
             logging.info(f"{datetime.now(tz=None)} Info IE browser handler found") 
@@ -226,10 +231,8 @@ class Search():
         return
 
 def main():
-    """Selenium VERSION 4.0.0 Alpha 5 -- In this version, PhantomJS and Opera are no longer supported
-    Task: Create a Selenium test to simulate a search on a website and test that a results session is shown. We can start with the
-    SoloSegment.com site search as the first site to test with, but we will eventually create a test that can be used with any of
-    our client's sites. Simulate entering a keyword for the keyword 's' without pressing enter. Results should be a list of suggestions
+    """Selenium VERSION 4.0.0 Alpha 5 -- In Version 4 of Selenium, PhantomJS and Opera are no longer supported.
+    Task: Create a Selenium test to simulate a search on a website and test that a results session is shown. Simulate entering a keyword for the keyword 's' without pressing enter. Results should be a list of suggestions
     About this script: https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
     """
 
@@ -237,22 +240,19 @@ def main():
     initial_url = "https://solosegment.com/" 
     results_url = f"{initial_url}?s=s" #class attribute
     keyword = "s"     
-    running_platform = platform.system()
-    
+    running_platform = platform.system()    
     if running_platform =="Windows":
-        browser_set = ["Chrome", "Firefox", "Edge","IE"]       
-         
+        browser_set = ["Chrome", "Firefox", "Edge","IE"]            
     elif running_platform =="Darwin": # Darwin is a mac
-        browser_set=["Safari", "Chrome"] # still haven't gotten geckodriver (firefox) to work
-         
+        browser_set=["Safari", "Chrome"] # still haven't gotten geckodriver (firefox) to work         
     elif running_platform =="Linux":   
         logging.info(f"{datetime.now(tz=None)} {running_platform} not yet supported")  
         sys.exit(1)     
-
+    print("Running platform is", running_platform)
     for browse in browser_set:                   
         mysearch = Search(initial_url, results_url, browse, keyword, running_platform)              
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
-            continue # go on to the next browser
+            continue # go on to the next browser rd   
         mysearch.start_the_session()          # start the session we want to test
         mysearch.simulate_keyword_entry()    
         mysearch.find_dropdown()
