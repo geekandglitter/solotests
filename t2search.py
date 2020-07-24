@@ -1,3 +1,9 @@
+# Explanation of delays:
+# Implicit waits are used to provide a default waiting time between each consecutive test step/command across the entire test script. 
+# Thus, the subsequent test step would only execute when the specified amount of time has elapsed after executing the previous test step/command.
+# Explicit waits are used to halt the execution until the time a particular condition is met or the maximum time has elapsed. 
+# Unlike Implicit waits, Explicit waits are applied for a particular instance only.
+# Implicit Waits are not recommended
 
 # System and Module Imports
 import logging 
@@ -6,9 +12,9 @@ from datetime import datetime
 import time
 import requests
 # Selenium Imports
-from selenium import webdriver 
+from selenium import webdriver # The webdriver class connects to the browser's instance
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.keys import Keys  # The Keys class lets you emulate the stroke of keyboard keys
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 # browser Imports
@@ -24,6 +30,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.edge.service import Service # couldn't get Service to work for Edge
 from selenium.webdriver.safari.service import Service # untested of course
 from selenium.webdriver.ie.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 # Determine which platform
 import os
 import platform
@@ -158,14 +166,16 @@ class Search():
         return handler    
 
    
-    def start_the_session(self):
-        """See if the session is up and then get the session"""
+    def start_the_session(self): # This is where we load the website into the browser
+        """See if the website is up and then get the session"""
         try:   
-            resp = requests.get(self.initial_url)  # This is how we have to make sure the URL exists and is obtainable
+            resp = requests.get(self.initial_url)  # First make sure the URL exists and is obtainable
             logging.info(f"{datetime.now(tz=None)} Info Looking for URL {self.initial_url}")
             if resp.status_code == 200:                
-                self.handler.get(self.initial_url)
-                time.sleep(10)   
+                self.handler.get(self.initial_url) # Now load the website
+                # The .get() method waits for the page to render completely before moving on to the next step
+                # time.sleep(10)   # ...so I took this sleep delay out
+                print("The page title is", self.handler.title)
                 logging.info(f"{datetime.now(tz=None)} Info URL {self.initial_url} found") 
                 logging.info(f"{datetime.now(tz=None)} Info Session Initialized") 
         except:             
@@ -173,10 +183,25 @@ class Search():
             self.handler.quit()
             sys.exit(1)  
         import selenium
-        selenium_ver= selenium.__version__[0]                   
-        return selenium_ver 
+         
 
     def simulate_keyword_entry(self):
+        """Find the search box and type in a single keyword which will force a dropdown"""
+        logging.info(f"{datetime.now(tz=None)} Info Looking for search box")
+        try:   
+            elem = WebDriverWait(self.handler, 10).until(            
+                EC.presence_of_element_located((By.XPATH, '//*[@id="search-6"]/form/label/input')) # We are looking inside the home session
+            )        
+            logging.info(f"{datetime.now(tz=None)} Info Search box found")
+        except:
+            logging.info(f"{datetime.now(tz=None)} Fail Search box not found")    
+            self.handler.quit()
+            sys.exit(1)
+        elem.send_keys(self.keyword)  
+        elem.send_keys(Keys.ENTER)  
+        return
+
+    def simulate_keyword_entry1(self):
         """Find the search box and type in a single keyword which will force a dropdown"""
         logging.info(f"{datetime.now(tz=None)} Info Looking for search box")
         try:               
@@ -189,6 +214,8 @@ class Search():
         elem.send_keys(self.keyword)  
         elem.send_keys(Keys.ENTER)  
         return
+
+
  
     def find_dropdown(self):
         """See that we have a search suggestion dropdown"""
@@ -215,7 +242,7 @@ class Search():
             sys.exit(1)  
         return    
 
-    def verify_results_url(self):       
+    def verify_results_url(self):    # might need a webdriverwait until in here because of firefox   
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""  
         time.sleep(4) # Needed this for firefox; otherwise it looks for: https://solosegment.com/#                       
         if self.handler.current_url == self.results_url:              
