@@ -201,30 +201,16 @@ class Search():
         elem.send_keys(Keys.ENTER)  
         return
 
-    def simulate_keyword_entry1(self):
-        """Find the search box and type in a single keyword which will force a dropdown"""
-        logging.info(f"{datetime.now(tz=None)} Info Looking for search box")
-        try:               
-            elem=self.handler.find_element(By.XPATH, '//*[@id="search-6"]/form/label/input') # We are looking inside the home session
-            logging.info(f"{datetime.now(tz=None)} Info Search box found")
-        except (NoSuchElementException):
-            logging.info(f"{datetime.now(tz=None)} Fail Search box not found")    
-            self.handler.quit()
-            sys.exit(1)
-        elem.send_keys(self.keyword)  
-        elem.send_keys(Keys.ENTER)  
-        return
-
-
- 
+      
     def find_dropdown(self):
         """See that we have a search suggestion dropdown"""
         logging.info(f"{datetime.now(tz=None)} Info Looking for search suggestion dropdown")  
         try:         
-            time.sleep(3)   
-            elem=self.handler.find_element(By.XPATH, '//*[@id="search-6"]/form/div')
+            elem=WebDriverWait(self.handler, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="search-6"]/form/div'))
+            )    
             logging.info(f"{datetime.now(tz=None)} Info Found search suggestion dropdown")   
-        except (NoSuchElementException):  
+        except:  
             logging.info(f"{datetime.now(tz=None)} Fail Search suggestion dropdown not found")    
             self.handler.quit()
             sys.exit(1)     
@@ -234,7 +220,9 @@ class Search():
         """Finding one search suggestion is enough evidence that the dropdown is correct"""    
         logging.info(f"{datetime.now(tz=None)} Info Looking for search suggestions") 
         try:            
-            elem=self.handler.find_element(By.XPATH, '//*[@id="search-6"]/form/div/ul')
+            elem=WebDriverWait(self.handler, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="search-6"]/form/div/ul'))
+            )    
             logging.info(f"{datetime.now(tz=None)} Info Found search suggestions")                
         except (NoSuchElementException):             
             logging.info(f"{datetime.now(tz=None)} Fail Search suggestions not found")    
