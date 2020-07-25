@@ -236,10 +236,8 @@ class Search():
         return    
 
     def verify_results_url(self):    # might need a webdriverwait until in here because of firefox   
-        """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""          
-
-        if self.browse=="Firefox": # Needed this for firefox; otherwise it looks for: https://solosegment.com/# 
-            time.sleep(4)
+        """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""              
+        time.sleep(4) # Need this for both Firefox and Safari
         if self.handler.current_url == self.results_url:              
             logging.info(f"{datetime.now(tz=None)} Pass")  
         else: 
