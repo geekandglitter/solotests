@@ -35,6 +35,7 @@ from selenium.webdriver.support import expected_conditions as EC
 # Determine which platform
 import os
 import platform
+from pathlib2 import Path # this module lets us consolidate paths across platforms
  
 
 class Search():    
@@ -78,11 +79,13 @@ class Search():
         try:   
             if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Chrome(options=options, executable_path='selenium_deps/drivers/chromedriver')   
-            elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version
-                service = Service('selenium_deps\\drivers\\chromedriver.exe') # Specify the custom path (new for Selenium 4)            
+            elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version                
+                service = Service(Path('selenium_deps/drivers/chromedriver.exe')) # Specify the custom path new for Selenium 4 
+                print("Service object for Chrome is", service)           
                 handler = webdriver.Chrome(options=options, service=service)  
+                print("Handler object for Chrome is", handler)
             else: 
-                handler = webdriver.Chrome(options=options,executable_path='selenium_deps\\drivers\\chromedriver.exe')        
+                handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver.exe'))     
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Chrome browser handler not found or failed to launch.")    
@@ -100,10 +103,12 @@ class Search():
             if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Firefox(options=options,executable_path='selenium_deps/drivers/geckodriver')  
             elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version
-                service = Service('selenium_deps\\drivers\\geckodriver.exe') # Specify the custom path (new for Selenium 4)
+                service = Service(Path('selenium_deps/drivers/geckodriver.exe')) # Specify the custom path (new for Selenium 4)
+                print("Service object for Firefox is", service)
                 handler = webdriver.Firefox(options=options, service=service)
+                print("Handler object for Firefox is", handler)
             else:     
-                handler = webdriver.Firefox(options=options,executable_path='selenium_deps\\drivers\\geckodriver.exe')  
+                handler = webdriver.Firefox(options=options,executable_path=Path('selenium_deps/drivers/geckodriver.exe')  )
             logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Firefox browser handler not found or failed to launch.")    
@@ -120,7 +125,7 @@ class Search():
         options.headless = True # I got this to work by setting the handler window size  
         logging.info(f"{datetime.now(tz=None)} Info Looking for Edge browser handler")  
         try:        
-            handler = Edge(executable_path='selenium_deps\\drivers\\msedgedriver.exe', options = options)   
+            handler = Edge(executable_path=Path('selenium_deps/drivers/msedgedriver.exe'), options = options)   
             handler.set_window_size(1600, 1200)  # set the browser handler window size so that headless will work with sendkeys   
             logging.info(f"{datetime.now(tz=None)} Info Edge browser handler found")     
         except (WebDriverException):
@@ -153,10 +158,10 @@ class Search():
         try:  
             if Search.selenium_ver == "4":
 
-                service = Service('selenium_deps\\drivers\\IEDriverServer.exe') # Specify the custom path (new for Selenium 4)  
+                service = Service(Path('selenium_deps/drivers/IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
                 handler = webdriver.Ie(service=service)     
             else:
-                handler = webdriver.Ie(executable_path = 'selenium_deps\\drivers\\IEDriverServer.exe')                 
+                handler = webdriver.Ie(executable_path = Path('selenium_deps/drivers/IEDriverServer.exe') )                
             handler.implicitly_wait(2)
             handler.maximize_window()
             logging.info(f"{datetime.now(tz=None)} Info IE browser handler found") 
@@ -251,13 +256,16 @@ def main():
     About this script: https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
     """
 
-    logging.basicConfig(filename='t2search.log', level=logging.INFO)        
+    logging.basicConfig(filename='t2search.log', level=logging.INFO)     
+    logging.info('\n')   
     initial_url = "https://solosegment.com/" 
     results_url = f"{initial_url}?s=s" #class attribute
     keyword = "s"     
     running_platform = platform.system()    
     if running_platform =="Windows":
-        browser_set = ["Chrome", "Firefox", "Edge","IE"]            
+        browser_set = ["Chrome", "Firefox", "Edge","IE"] 
+        #browser_set = ["Chrome", "Firefox"]    
+                 
     elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Safari", "Chrome"] # still haven't gotten geckodriver (firefox) to work         
     elif running_platform =="Linux":   
@@ -274,5 +282,7 @@ def main():
         mysearch.find_search_suggestions()
         mysearch.verify_results_url()     
         mysearch.tearDown()  
+    logging.info('\n')
+        
 if __name__ == "__main__":
     main()
