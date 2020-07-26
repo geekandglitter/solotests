@@ -36,13 +36,14 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 import platform
 from pathlib2 import Path # this module lets us consolidate paths across platforms
+
  
 
 class Search():    
     test_name = "Search 3" #class attribute      
-    import selenium
-    selenium_ver = selenium.__version__[0]   # Find out if we are running Selenium 4 or 3 (they have different API's)
-    print("Selenium version is", selenium_ver)
+    selenium_ver = (sys.modules[webdriver.__package__].__version__)[0] # This is how to get the version w/o importing entire package
+     
+     
 
     def __init__(self, initial_url, results_url, browse, keyword, running_platform):
         self.keyword = keyword
@@ -81,9 +82,9 @@ class Search():
                 handler = webdriver.Chrome(options=options, executable_path='selenium_deps/drivers/chromedriver')   
             elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version                
                 service = Service(Path('selenium_deps/drivers/chromedriver.exe')) # Specify the custom path new for Selenium 4 
-                print("Service object for Chrome is", service)           
-                handler = webdriver.Chrome(options=options, service=service)  
-                print("Handler object for Chrome is", handler)
+                           
+                handler = webdriver.Chrome(options=options, service=service)   
+                 
             else: 
                 handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver.exe'))     
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
@@ -104,9 +105,9 @@ class Search():
                 handler = webdriver.Firefox(options=options,executable_path='selenium_deps/drivers/geckodriver')  
             elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version
                 service = Service(Path('selenium_deps/drivers/geckodriver.exe')) # Specify the custom path (new for Selenium 4)
-                print("Service object for Firefox is", service)
+                
                 handler = webdriver.Firefox(options=options, service=service)
-                print("Handler object for Firefox is", handler)
+                
             else:     
                 handler = webdriver.Firefox(options=options,executable_path=Path('selenium_deps/drivers/geckodriver.exe')  )
             logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
@@ -157,13 +158,16 @@ class Search():
         logging.info(f"{datetime.now(tz=None)} Info Looking for IE browser handler")   
         try:  
             if Search.selenium_ver == "4":
-
+                # for IE, we use the IEDriverServer which might be why it redirects (see log)
                 service = Service(Path('selenium_deps/drivers/IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
-                handler = webdriver.Ie(service=service)     
+                handler = webdriver.Ie(service=service)  
+                logging.info(f"{datetime.now(tz=None)} Finished handler setup")  
+                
             else:
                 handler = webdriver.Ie(executable_path = Path('selenium_deps/drivers/IEDriverServer.exe') )                
-            handler.implicitly_wait(2)
+            #handler.implicitly_wait(2)
             handler.maximize_window()
+            logging.info(f"{datetime.now(tz=None)} Finished maximizing window") 
             logging.info(f"{datetime.now(tz=None)} Info IE browser handler found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail IE browser handler not found or failed to launch.")    
@@ -180,7 +184,7 @@ class Search():
                 self.handler.get(self.initial_url) # Now load the website
                 # The .get() method waits for the page to render completely before moving on to the next step
                 # time.sleep(10)   # ...so I took this sleep delay out
-                print("The page title is", self.handler.title)
+                
                 logging.info(f"{datetime.now(tz=None)} Info URL {self.initial_url} found") 
                 logging.info(f"{datetime.now(tz=None)} Info Session Initialized") 
         except:             
@@ -261,15 +265,15 @@ def main():
     keyword = "s"     
     running_platform = platform.system()    
     if running_platform =="Windows":
-        browser_set = ["Chrome", "Firefox", "Edge","IE"] 
-        #browser_set = ["Chrome", "Firefox"]    
+        #browser_set = ["Chrome", "Firefox", "Edge","IE"] 
+        browser_set = ["IE"]    
                  
     elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Safari", "Chrome"] # still haven't gotten geckodriver (firefox) to work         
     elif running_platform =="Linux":   
         logging.info(f"{datetime.now(tz=None)} {running_platform} not yet supported")  
         sys.exit(1)     
-    print("Running platform is", running_platform)
+     
     for browse in browser_set:                   
         mysearch = Search(initial_url, results_url, browse, keyword, running_platform)              
         if mysearch.handler == None: # In the event that the handler is not found or failed to launch,
