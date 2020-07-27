@@ -93,7 +93,7 @@ class Search():
                 handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver.exe'))     
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
-              
+            logging.info(f"{datetime.now(tz=None)} Fail Chrome browser handler not found or failed to launch.")  
             handler = None  
         return handler         
 
@@ -165,7 +165,7 @@ class Search():
                 logging.info(f"{datetime.now(tz=None)} Finished handler setup")                  
             else:
                 handler = webdriver.Ie(executable_path = Path('selenium_deps/drivers/IEDriverServer.exe') )                
-            #handler.implicitly_wait(2)
+             
             handler.maximize_window()
             logging.info(f"{datetime.now(tz=None)} Info IE browser handler found") 
         except (WebDriverException):
