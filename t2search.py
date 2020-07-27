@@ -57,6 +57,7 @@ class Search():
         self.results_url = results_url
         self.browse=browse
         self.running_platform=running_platform
+        logging.info(f"{datetime.now(tz=None)} Info Looking for {self.browse} browser handler")  
         if self.browse == "Chrome":  
             self.handler = self.setUpchrome()   # get the handler
         elif browse == "Firefox":
@@ -80,8 +81,7 @@ class Search():
         Running Chrome headless with sendkeys requires a window size"""
         options = webdriver.ChromeOptions()           
         options.add_argument("window-size=1920x1080")
-        options.add_argument("headless") 
-        logging.info(f"{datetime.now(tz=None)} Info Looking for Chrome browser handler")  
+        options.add_argument("headless")         
 
         try:   
             if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
@@ -93,7 +93,7 @@ class Search():
                 handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver.exe'))     
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Fail Chrome browser handler not found or failed to launch.")    
+              
             handler = None  
         return handler         
 
@@ -104,8 +104,7 @@ class Search():
         https://firefox-source-docs.mozilla.org/testing/geckodriver/Notarization.html"""  
         options = Options()
         options.headless = True
-        logging.info(f"{datetime.now(tz=None)} Info Looking for Firefox browser handler") 
-        
+                
         try:
             if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Firefox(options=options,executable_path='selenium_deps/drivers/geckodriver')  
@@ -129,7 +128,7 @@ class Search():
         options.use_chromium = True          
         #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
         options.headless = True # I got this to work by setting the handler window size  
-        logging.info(f"{datetime.now(tz=None)} Info Looking for Edge browser handler")  
+          
         try:        
             handler = Edge(executable_path=Path('selenium_deps/drivers/msedgedriver.exe'), options = options)   
             handler.set_window_size(1600, 1200)  # set the browser handler window size so that headless will work with sendkeys   
@@ -141,7 +140,6 @@ class Search():
 
 
     def setUpsafari(self): # this Selenium (3) legacy API code works with both selenium 3 and selenium 4
-        logging.info(f"{datetime.now(tz=None)} Info Looking for Safari browser handler")  
         try:
             handler = webdriver.Safari (executable_path='/usr/bin/safaridriver')
             handler.maximize_window() # necessary for sendkeys to work           
@@ -159,7 +157,6 @@ class Search():
         IE has some other gotchas, too, which I posted in my blog. 
         See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
         """    
-        logging.info(f"{datetime.now(tz=None)} Info Looking for IE browser handler")   
         try:  
             if Search.selenium_ver == "4":
                 # for IE, we use the IEDriverServer which might be why it redirects (see log)
@@ -170,7 +167,6 @@ class Search():
                 handler = webdriver.Ie(executable_path = Path('selenium_deps/drivers/IEDriverServer.exe') )                
             #handler.implicitly_wait(2)
             handler.maximize_window()
-            logging.info(f"{datetime.now(tz=None)} Finished maximizing window") 
             logging.info(f"{datetime.now(tz=None)} Info IE browser handler found") 
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail IE browser handler not found or failed to launch.")    
