@@ -19,6 +19,12 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 # browser Imports
 from selenium.webdriver.firefox.options import Options
+
+
+
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
+
 try:
     from msedge.selenium_tools import Edge, EdgeOptions
 except:
@@ -81,10 +87,8 @@ class Search():
             if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Chrome(options=options, executable_path='selenium_deps/drivers/chromedriver')   
             elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version                
-                service = Service(Path('selenium_deps/drivers/chromedriver.exe')) # Specify the custom path new for Selenium 4 
-                           
-                handler = webdriver.Chrome(options=options, service=service)   
-                 
+                service = Service(Path('selenium_deps/drivers/chromedriver.exe')) # Specify the custom path new for Selenium 4                            
+                handler = webdriver.Chrome(options=options, service=service)                    
             else: 
                 handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver.exe'))     
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
@@ -95,7 +99,9 @@ class Search():
 
     def setUpfirefox(self):
         """Product name: Firefox Nightly Product version: 71.0a1 
-        Firefox can run headless with sendkeys. (Firefox handler is called GeckoDriver)"""  
+        Firefox can run headless with sendkeys. (Firefox handler is called GeckoDriver)
+        Note about firefox driver on MacOS: if it fails to load there's a simple one-time workaround: 
+        https://firefox-source-docs.mozilla.org/testing/geckodriver/Notarization.html"""  
         options = Options()
         options.headless = True
         logging.info(f"{datetime.now(tz=None)} Info Looking for Firefox browser handler") 
@@ -104,17 +110,16 @@ class Search():
             if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Firefox(options=options,executable_path='selenium_deps/drivers/geckodriver')  
             elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version
-                service = Service(Path('selenium_deps/drivers/geckodriver.exe')) # Specify the custom path (new for Selenium 4)
-                
-                handler = webdriver.Firefox(options=options, service=service)
-                
+                service = Service(Path('selenium_deps/drivers/geckodriver.exe')) # Specify the custom path (new for Selenium 4)                
+                handler = webdriver.Firefox(options=options, service=service)               
             else:     
                 handler = webdriver.Firefox(options=options,executable_path=Path('selenium_deps/drivers/geckodriver.exe')  )
             logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Firefox browser handler not found or failed to launch.")    
             handler = None    
-        return handler      
+        return handler            
+                
 
     def setUpedge(self):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
@@ -132,8 +137,7 @@ class Search():
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Edge browser handler not found or failed to launch.")    
             handler = None                       
-        return handler # ignore the handshake errors 
- 
+        return handler # ignore the handshake errors  
 
 
     def setUpsafari(self): # this Selenium (3) legacy API code works with both selenium 3 and selenium 4
@@ -161,8 +165,7 @@ class Search():
                 # for IE, we use the IEDriverServer which might be why it redirects (see log)
                 service = Service(Path('selenium_deps/drivers/IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
                 handler = webdriver.Ie(service=service)  
-                logging.info(f"{datetime.now(tz=None)} Finished handler setup")  
-                
+                logging.info(f"{datetime.now(tz=None)} Finished handler setup")                  
             else:
                 handler = webdriver.Ie(executable_path = Path('selenium_deps/drivers/IEDriverServer.exe') )                
             #handler.implicitly_wait(2)
@@ -181,10 +184,7 @@ class Search():
             resp = requests.get(self.initial_url)  # First make sure the URL exists and is obtainable
             logging.info(f"{datetime.now(tz=None)} Info Looking for URL {self.initial_url}")
             if resp.status_code == 200:                
-                self.handler.get(self.initial_url) # Now load the website
-                # The .get() method waits for the page to render completely before moving on to the next step
-                # time.sleep(10)   # ...so I took this sleep delay out
-                
+                self.handler.get(self.initial_url) # Now load the website                               
                 logging.info(f"{datetime.now(tz=None)} Info URL {self.initial_url} found") 
                 logging.info(f"{datetime.now(tz=None)} Info Session Initialized") 
         except:             
@@ -265,11 +265,9 @@ def main():
     keyword = "s"     
     running_platform = platform.system()    
     if running_platform =="Windows":
-        #browser_set = ["Chrome", "Firefox", "Edge","IE"] 
-        browser_set = ["IE"]    
-                 
+        browser_set = ["Chrome", "Firefox", "Edge","IE"]                          
     elif running_platform =="Darwin": # Darwin is a mac
-        browser_set=["Safari", "Chrome"] # still haven't gotten geckodriver (firefox) to work         
+        browser_set=["Firefox", "Safari", "Chrome"]          
     elif running_platform =="Linux":   
         logging.info(f"{datetime.now(tz=None)} {running_platform} not yet supported")  
         sys.exit(1)     
