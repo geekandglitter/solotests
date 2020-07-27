@@ -145,7 +145,7 @@ class Search():
             handler.maximize_window() # necessary for sendkeys to work           
             logging.info
             (f"{datetime.now(tz=None)} Info Safari browser handler found")
-        except (WebDriverException):
+        except:
             logging.info(f"{datetime.now(tz=None)} Fail Safari browser handler not found or failed to launch.")    
             handler = None      
         return handler 
