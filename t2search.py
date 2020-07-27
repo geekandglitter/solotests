@@ -21,8 +21,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.firefox.options import Options
 
 
-
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+ 
 
 
 try:
@@ -89,8 +88,10 @@ class Search():
             elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version                
                 service = Service(Path('selenium_deps/drivers/chromedriver.exe')) # Specify the custom path new for Selenium 4                            
                 handler = webdriver.Chrome(options=options, service=service)                    
-            else: 
-                handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver.exe'))     
+            elif self.running_platform == "Windows": 
+                handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver.exe'))  
+            else: # In case it's Unix
+                handler = webdriver.Chrome(options=options,executable_path=Path('selenium_deps/drivers/chromedriver'))    
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Chrome browser handler not found or failed to launch.")  
@@ -111,8 +112,10 @@ class Search():
             elif self.running_platform == "Windows" and Search.selenium_ver == "4": # If it's Windows, then check selenium version
                 service = Service(Path('selenium_deps/drivers/geckodriver.exe')) # Specify the custom path (new for Selenium 4)                
                 handler = webdriver.Firefox(options=options, service=service)               
-            else:     
+            elif self.running_platform == "Windows":     
                 handler = webdriver.Firefox(options=options,executable_path=Path('selenium_deps/drivers/geckodriver.exe')  )
+            else: # In case it's Unix
+                handler = webdriver.Firefox(options=options,executable_path=Path('selenium_deps/drivers/geckodriver')  )      
             logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Fail Firefox browser handler not found or failed to launch.")    
@@ -265,7 +268,9 @@ def main():
     elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Firefox", "Safari", "Chrome"]          
     elif running_platform =="Linux":   
-        logging.info(f"{datetime.now(tz=None)} {running_platform} not yet supported")  
+        browser_set=["Firefox", "Chrome"]
+    else:    
+        logging.info(f"{datetime.now(tz=None)} {running_platform} not supported")  
         sys.exit(1)     
      
     for browse in browser_set:                   
