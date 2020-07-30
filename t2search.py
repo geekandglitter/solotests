@@ -41,7 +41,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 import platform
 from pathlib2 import Path # this module lets us consolidate paths across platforms
-
+import os.path
+from os import path 
  
 
 class Search():    
@@ -268,14 +269,21 @@ def main():
     keyword = "s"     
     running_platform = platform.system()    
     if running_platform =="Windows":             
-        handler_path = "selenium_deps_windows/drivers/"             
+        handler_path = "selenium_deps_windows/drivers/"                    
     elif running_platform =="Darwin": # Darwin is a mac           
         handler_path = "selenium_deps_mac/drivers/"        
     elif running_platform =="Linux":           
         handler_path = "selenium_deps_linux/drivers/"  
     else:    
         logging.info(f"{datetime.now(tz=None)} {running_platform} not supported")  
+        sys.exit(1)   
+    if not path.exists(handler_path):
+        logging.info(f"{datetime.now(tz=None)} {handler_path} not found")  
         sys.exit(1)     
+
+
+
+
     browser_set = ["Chrome", "Firefox", "Safari", "Edge","IE"]   
     for browse in browser_set:                   
         mysearch = Search(initial_url, results_url, browse, keyword, running_platform, handler_path)              
