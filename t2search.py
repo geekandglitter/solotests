@@ -58,18 +58,17 @@ class WebPage():
         self.browse=browse
         self.running_platform=running_platform
         self.handler_path = handler_path
-
         logging.info(f"{datetime.now(tz=None)} Info Looking for {self.browse} browser handler")  
         if self.browse == "Chrome":  
-            self.handler = self.set_up_chrome()   # get the handler
+            self.handler = self.setUpchrome()   # get the handler
         elif browse == "Firefox":
-            self.handler = self.set_up_firefox()  # get the handler 
+            self.handler = self.setUpfirefox()  # get the handler 
         elif browse == "Edge":
-            self.handler = self.set_up_edge()     # get the handler
+            self.handler = self.setUpedge()     # get the handler
         elif browse == "IE":
-            self.handler = self.set_up_ie()       # get the handler
+            self.handler = self.setUpIE()       # get the handler
         elif browse == "Safari":
-            self.handler = self.set_up_safari()   # get the handler          
+            self.handler = self.setUpsafari()   # get the handler          
       
 
     def __repr__(self):
@@ -78,7 +77,7 @@ class WebPage():
  
      
 
-    def set_up_chrome(self):
+    def setUpchrome(self):
         """Product name: unavailable Product version: unavailable 
         Running Chrome headless with sendkeys requires a window size"""
         options = webdriver.ChromeOptions()           
@@ -91,17 +90,19 @@ class WebPage():
             elif self.running_platform == "Windows" and WebPage.selenium_ver == "4": # If it's Windows, then check selenium version                
                 service = Service(Path(self.handler_path + 'chromedriver.exe')) # Specify the custom path new for Selenium 4                            
                 handler = webdriver.Chrome(options=options, service=service)                    
-            elif self.running_platform == "Windows": # If it's Windows but it's Selenium 3
+            elif self.running_platform == "Windows": 
+                print("executable_path is", Path(self.handler_path + 'chromedriver.exe'))
                 handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path + 'chromedriver.exe')) 
+
             else: # In case it's Unix
                 handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path +'chromedriver'))    
             logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning Chrome browser handler not available or failed to launch.")  
+            logging.info(f"{datetime.now(tz=None)} Warning Chrome browser handler not found or failed to launch.")  
             handler = None  
         return handler         
 
-    def set_up_firefox(self):
+    def setUpfirefox(self):
         """Product name: Firefox Nightly Product version: 71.0a1 
         Firefox can run headless with sendkeys. (Firefox handler is called GeckoDriver)
         Note about firefox driver on MacOS: if it fails to load there's a simple one-time workaround: 
@@ -121,12 +122,12 @@ class WebPage():
                 handler = webdriver.Firefox(options=options,executable_path=Path(self.handler_path +'geckodriver')  )      
             logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning Firefox browser handler not available or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning Firefox browser handler not found or failed to launch.")    
             handler = None    
         return handler            
                 
 
-    def set_up_edge(self):
+    def setUpedge(self):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
         * Edge gets wordy when it's headless, but at least it's working (by setting window size)
         * At the time of this refactor for Selenium 4, Edge does not yet support the new API, so I'm using the legacy one"""  
@@ -140,24 +141,24 @@ class WebPage():
             handler.set_window_size(1600, 1200)  # set the browser handler window size so that headless will work with sendkeys   
             logging.info(f"{datetime.now(tz=None)} Info Edge browser handler found")     
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning Edge browser handler not available or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning Edge browser handler not found or failed to launch.")    
             handler = None                       
         return handler # ignore the handshake errors  
 
 
-    def set_up_safari(self): # this Selenium (3) legacy API code works with both selenium 3 and selenium 4
+    def setUpsafari(self): # this Selenium (3) legacy API code works with both selenium 3 and selenium 4
         try:
             handler = webdriver.Safari (executable_path=self.handler_path +'safaridriver')
             handler.maximize_window() # necessary for sendkeys to work           
             logging.info
             (f"{datetime.now(tz=None)} Info Safari browser handler found")
         except:
-            logging.info(f"{datetime.now(tz=None)} Warning Safari browser handler not available or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning Safari browser handler not found or failed to launch.")    
             handler = None      
         return handler 
 
 
-    def set_up_ie(self):
+    def setUpIE(self):
         """Product name: Selenium WebDriver Product version: 2.42.0.0        
         IE does not have support for a headless mode
         IE has some other gotchas, too, which I posted in my blog. 
@@ -175,7 +176,7 @@ class WebPage():
             handler.maximize_window()
             logging.info(f"{datetime.now(tz=None)} Info IE browser handler found") 
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning IE browser handler not available or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning IE browser handler not found or failed to launch.")    
             handler = None      
         return handler    
 
@@ -262,28 +263,26 @@ def main():
 
     logging.basicConfig(filename='t2search.log', level=logging.INFO)     
     logging.info('\n')   
-    
-    running_platform = platform.system()    
-    if running_platform =="Windows":             
-        handler_path = "selenium_deps_windows/drivers/"                    
-    elif running_platform =="Darwin": # Darwin is a mac           
-        handler_path = "selenium_deps_mac/drivers/"        
-    elif running_platform =="Linux":           
-        handler_path = "selenium_deps_linux/drivers/"  
-    else:    
-        logging.info(f"{datetime.now(tz=None)} INFO {running_platform} not supported")  
-        sys.exit(1)   
-    if not path.exists(handler_path):
-        logging.info(f"{datetime.now(tz=None)} {handler_path} not found")  
-        logging.info(f"{datetime.now(tz=None)} Fail") 
-        sys.exit(1)     
-
     initial_url = "https://solosegment.com/" 
     results_url = f"{initial_url}?s=s" #class attribute
     keyword = "s"     
-    browser_set = ["Chrome", "Firefox", "Safari", "Edge","IE"]   
-
-
+    running_platform = platform.system()    
+    if running_platform =="Windows":
+        browser_set = ["Chrome", "Firefox", "Edge","IE"]     
+        handler_path = "selenium_deps_windows/drivers/"             
+    elif running_platform =="Darwin": # Darwin is a mac
+        browser_set=["Firefox", "Safari", "Chrome"]    
+        handler_path = "selenium_deps_mac/drivers/"        
+    elif running_platform =="Linux":   
+        browser_set=["Firefox", "Chrome"]
+        handler_path = "selenium_deps_linux/drivers/"  
+    else:    
+        logging.info(f"{datetime.now(tz=None)} Warning {running_platform} not supported")  
+        sys.exit(1) 
+    if not path.exists(handler_path):
+        logging.info(f"{datetime.now(tz=None)} Warning {handler_path} not found")  
+        sys.exit(1)         
+     
     for browse in browser_set:                   
         web_page = WebPage(initial_url, results_url, browse, keyword, running_platform, handler_path)              
         if web_page.handler == None: # In the event that the handler is not found or failed to launch,
