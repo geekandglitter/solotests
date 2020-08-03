@@ -40,8 +40,7 @@ import os.path
 from os import path 
  
 
-class WebPage():       
-     
+class WebPage():        
      
 
     def __init__(self,config, browse):
@@ -54,6 +53,7 @@ class WebPage():
         self.selenium_ver = config["selenium_ver"]
         self.handler_path = config["handler_path"]
         logging.info(f"{datetime.now(tz=None)} Info Looking for {self.browse} browser handler")  
+        """
         if self.browse == "Chrome":  
             self.handler = self.setUpchrome()   # get the handler
         elif browse == "Firefox":
@@ -63,7 +63,27 @@ class WebPage():
         elif browse == "IE":
             self.handler = self.setUpIE()       # get the handler
         elif browse == "Safari":
-            self.handler = self.setUpsafari()   # get the handler          
+            self.handler = self.setUpsafari()   # get the handler  
+        """         
+         
+        
+        # I tried putting in the dict values without quotes and without parens, but Python thinks they're variables.
+        # I tried putting the dict values without quotes but with parens, but Python executes them in realtime
+        # I tried literal_eval but got a node error
+        # I tried literal_eval with the extra quotes trick but then it failed later in the script
+        # So I have settled on eval. There has got to be a way.
+        browse_config = {
+            "Chrome": "self.setUpchrome()", 
+            "Firefox": "self.setUpfirefox()",
+            "Edge": "self.setUpedge()",
+            "IE": "self.setUpIE()",
+            "Safari": "self.setUpsafari()"    
+        }
+         
+        self.handler = eval(browse_config[self.browse]) # Literal_eval doesn't work, and I could find no other way
+         
+        
+       
       
 
     def __repr__(self):
@@ -267,17 +287,16 @@ def main():
         handler_path = "selenium_deps_mac/drivers/"        
     elif running_platform =="Linux":   
         browser_set=["Firefox", "Chrome"]
-        handler_path = "selenium_deps_linux/drivers/"  
-     
+        handler_path = "selenium_deps_linux/drivers/"      
 
     
     config = {
             "initial_url": "https://solosegment.com/",
             "results_url": "https://solosegment.com/?s=s",
             "keyword": "s",
-            "browser_set": browser_set,            
+            "browser_set": browser_set,            # browser_set depends on which OS is runnng
             "running_platform": platform.system(),            
-            "selenium_ver": (sys.modules[webdriver.__package__].__version__)[0],   
+            "selenium_ver": (sys.modules[webdriver.__package__].__version__)[0],   # detect the version of selenium
             "handler_path": handler_path
                 
     }   
