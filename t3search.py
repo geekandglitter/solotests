@@ -59,7 +59,7 @@ class WebPage():
         self.running_platform=config["running_platform"]
         self.selenium_ver = config["selenium_ver"]
         self.handler_path = config["handler_path"]
-        logging.info(f"{datetime.now(tz=None)} Info Looking for {self.browse} browser handler")  
+        logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")  
         """
         if self.browse == "Chrome":  
             self.handler = self.setUpchrome()   # get the handler
@@ -104,7 +104,7 @@ class WebPage():
         Running Chrome headless with sendkeys requires a window size"""
         options = webdriver.ChromeOptions()           
         options.add_argument("window-size=1920x1080")
-        #options.add_argument("headless")         
+        options.add_argument("headless")         
 
         try:   
             if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
@@ -117,9 +117,9 @@ class WebPage():
 
             else: # In case it's Unix
                 handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path +'chromedriver'))    
-            logging.info(f"{datetime.now(tz=None)} Info Chrome browser handler found")  
+            logging.info(f"{datetime.now(tz=None)} Info  {self.browse} browser handler found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning Chrome browser handler not found or failed to launch.")  
+            logging.info(f"{datetime.now(tz=None)} Warning  {self.browse} browser handler not found or failed to launch.")  
             handler = None  
         return handler         
 
@@ -129,7 +129,7 @@ class WebPage():
         Note about firefox driver on MacOS: if it fails to load there's a simple one-time workaround: 
         https://firefox-source-docs.mozilla.org/testing/geckodriver/Notarization.html"""  
         options = Options()
-        #options.headless = True
+        options.headless = True
                 
         try:
             if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
@@ -141,9 +141,9 @@ class WebPage():
                 handler = webdriver.Firefox(options=options,executable_path=Path(self.handler_path +'geckodriver.exe')  )
             else: # In case it's Unix
                 handler = webdriver.Firefox(options=options,executable_path=Path(self.handler_path +'geckodriver')  )      
-            logging.info(f"{datetime.now(tz=None)} Info Firefox browser handler found")             
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")             
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning Firefox browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
             handler = None    
         return handler            
                 
@@ -155,14 +155,14 @@ class WebPage():
         options = EdgeOptions()
         options.use_chromium = True          
         #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
-        #options.headless = True # I got this to work by setting the handler window size  
+        options.headless = True # I got this to work by setting the handler window size  
           
         try:        
             handler = Edge(executable_path=Path(self.handler_path +'msedgedriver.exe'), options = options)   
             handler.set_window_size(1600, 1200)  # set the browser handler window size so that headless will work with sendkeys   
-            logging.info(f"{datetime.now(tz=None)} Info Edge browser handler found")     
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")     
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning Edge browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
             handler = None                       
         return handler # ignore the handshake errors  
 
@@ -172,9 +172,9 @@ class WebPage():
             handler = webdriver.Safari (executable_path=self.handler_path +'safaridriver')
             handler.maximize_window() # necessary for sendkeys to work           
             logging.info
-            (f"{datetime.now(tz=None)} Info Safari browser handler found")
+            (f"{datetime.now(tz=None)} Info {self.browse} browser handler found")
         except:
-            logging.info(f"{datetime.now(tz=None)} Warning Safari browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
             handler = None      
         return handler 
 
@@ -190,14 +190,14 @@ class WebPage():
                 # for IE, we use the IEDriverServer which might be why it redirects (see log)
                 service = Service(Path(self.handler_path +'IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
                 handler = webdriver.Ie(service=service)  
-                logging.info(f"{datetime.now(tz=None)} Finished handler setup")                  
+                logging.info(f"{datetime.now(tz=None)} Info {self.browse} Finished handler setup")                  
             else:
                 handler = webdriver.Ie(executable_path = Path(self.handler_path +'IEDriverServer.exe') )                
              
             handler.maximize_window()
-            logging.info(f"{datetime.now(tz=None)} Info IE browser handler found") 
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found") 
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning IE browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
             handler = None      
         return handler    
 
@@ -206,13 +206,13 @@ class WebPage():
         """See if the website is up and then get the session"""
         try:   
             resp = requests.get(self.initial_url)  # First make sure the URL exists and is obtainable
-            logging.info(f"{datetime.now(tz=None)} Info Looking for URL {self.initial_url}")
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for URL {self.initial_url}")
             if resp.status_code == 200:                
                 self.handler.get(self.initial_url) # Now load the website                               
-                logging.info(f"{datetime.now(tz=None)} Info URL {self.initial_url} found") 
-                logging.info(f"{datetime.now(tz=None)} Info Session Initialized") 
+                logging.info(f"{datetime.now(tz=None)} Info {self.browse} URL {self.initial_url} found") 
+                logging.info(f"{datetime.now(tz=None)} Info {self.browse} Session Initialized") 
         except:             
-            logging.info(f"{datetime.now(tz=None)} Fail URL {self.initial_url} not found. Process terminated")    
+            logging.info(f"{datetime.now(tz=None)} Fail {self.browse} URL {self.initial_url} not found. Process terminated")    
             self.handler.quit()
             sys.exit(1)  
         import selenium
@@ -220,14 +220,14 @@ class WebPage():
 
     def simulate_keyword_entry(self):
         """Find the search box and type in a single keyword which will force a dropdown"""
-        logging.info(f"{datetime.now(tz=None)} Info Looking for search box")
+        logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for search box")
         try:   
             elem = WebDriverWait(self.handler, 10).until(            
                 EC.presence_of_element_located((By.XPATH, '//*[@id="search-6"]/form/label/input')) # We are looking inside the home session
             )        
-            logging.info(f"{datetime.now(tz=None)} Info Search box found")
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Search box found")
         except:
-            logging.info(f"{datetime.now(tz=None)} Fail Search box not found")    
+            logging.info(f"{datetime.now(tz=None)} Fail {self.browse} Search box not found")    
             self.handler.quit()
             sys.exit(1)
         elem.send_keys(self.keyword)  
@@ -237,29 +237,29 @@ class WebPage():
       
     def find_dropdown(self):
         """See that we have a search suggestion dropdown"""
-        logging.info(f"{datetime.now(tz=None)} Info Looking for search suggestion dropdown")  
+        logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for search suggestion dropdown")  
 
         try:         
             elem=WebDriverWait(self.handler, 10).until(
                 EC.presence_of_element_located((By.XPATH, '//*[@id="search-6"]/form/div'))
             )    
-            logging.info(f"{datetime.now(tz=None)} Info Found search suggestion dropdown")   
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Found search suggestion dropdown")   
         except:  
-            logging.info(f"{datetime.now(tz=None)} Fail Search suggestion dropdown not found")    # failing here
+            logging.info(f"{datetime.now(tz=None)} Fail {self.browse} Search suggestion dropdown not found")    # failing here
             self.handler.quit()
             sys.exit(1)     
         return    
 
     def find_search_suggestions(self):
         """Finding one search suggestion is enough evidence that the dropdown is correct"""    
-        logging.info(f"{datetime.now(tz=None)} Info Looking for search suggestions") 
+        logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for search suggestions") 
         try:            
             elem=WebDriverWait(self.handler, 10).until(
                 EC.presence_of_element_located((By.XPATH, '//*[@id="search-6"]/form/div/ul'))
             )    
-            logging.info(f"{datetime.now(tz=None)} Info Found search suggestions")                
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Found search suggestions")                
         except (NoSuchElementException):             
-            logging.info(f"{datetime.now(tz=None)} Fail Search suggestions not found")    
+            logging.info(f"{datetime.now(tz=None)} Fail {self.browse} Search suggestions not found")    
             self.handler.quit()
             sys.exit(1)  
         return    
@@ -268,9 +268,9 @@ class WebPage():
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""              
         time.sleep(4) # Need this for both Firefox and Safari
         if self.handler.current_url == self.results_url:              
-            logging.info(f"{datetime.now(tz=None)} Pass")  
+            logging.info(f"{datetime.now(tz=None)} {self.browse} Pass")  
         else: 
-            logging.info(f"{datetime.now(tz=None)} Fail with {self.handler.current_url} not equal to the expected ur: {self.results_url}")           
+            logging.info(f"{datetime.now(tz=None)} {self.browse} Fail with {self.handler.current_url} not equal to the expected ur: {self.results_url}")           
         return    
 
     def tearDown(self):    
@@ -288,8 +288,7 @@ def main():
  
     running_platform = running_platform = platform.system()         
     if running_platform =="Windows":
-        browser_set = [ "Firefox", "IE", "Edge", "Chrome"]    
-        browser_set = ["IE","Firefox"]   
+        browser_set = [ "Firefox", "IE", "Edge", "Chrome"]              
         handler_path = "selenium_deps_windows/drivers/"             
     elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Firefox", "Safari", "Chrome"]    
