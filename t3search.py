@@ -18,6 +18,13 @@ from selenium.webdriver.common.keys import Keys  # The Keys class lets you emula
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 # browser Imports
+#from selenium.webdriver.chrome.options import Options as CO
+#from selenium.webdriver.firefox.options import Options as FO
+#from selenium.webdriver.ie.options import Options as IO
+#from selenium.webdriver.safari.options import Options as SO 
+#from selenium.webdriver.edge.options import Options as EO  
+
+# browser Imports
 from selenium.webdriver.firefox.options import Options
 try:
     from msedge.selenium_tools import Edge, EdgeOptions
@@ -73,11 +80,11 @@ class WebPage():
         # I tried literal_eval with the extra quotes trick but then it failed later in the script
         # So I have settled on eval. There has got to be a way.
         browse_config = {
-            "Chrome": "self.setUpchrome()", 
-            "Firefox": "self.setUpfirefox()",
-            "Edge": "self.setUpedge()",
-            "IE": "self.setUpIE()",
-            "Safari": "self.setUpsafari()"    
+            "Chrome": "self.SetUpChrome()", 
+            "Firefox": "self.SetUpFirefox()",
+            "Edge": "self.SetUpEdge()",
+            "IE": "self.SetUpIE()",
+            "Safari": "self.SetUpSafari()"    
         }
          
         self.handler = eval(browse_config[self.browse]) # Literal_eval doesn't work, and I could find no other way
@@ -92,12 +99,12 @@ class WebPage():
  
      
 
-    def setUpchrome(self):
+    def SetUpChrome(self):
         """Product name: unavailable Product version: unavailable 
         Running Chrome headless with sendkeys requires a window size"""
         options = webdriver.ChromeOptions()           
         options.add_argument("window-size=1920x1080")
-        options.add_argument("headless")         
+        #options.add_argument("headless")         
 
         try:   
             if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
@@ -116,13 +123,13 @@ class WebPage():
             handler = None  
         return handler         
 
-    def setUpfirefox(self):
+    def SetUpFirefox(self):
         """Product name: Firefox Nightly Product version: 71.0a1 
         Firefox can run headless with sendkeys. (Firefox handler is called GeckoDriver)
         Note about firefox driver on MacOS: if it fails to load there's a simple one-time workaround: 
         https://firefox-source-docs.mozilla.org/testing/geckodriver/Notarization.html"""  
         options = Options()
-        options.headless = True
+        #options.headless = True
                 
         try:
             if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
@@ -141,14 +148,14 @@ class WebPage():
         return handler            
                 
 
-    def setUpedge(self):
+    def SetUpEdge(self):
         """Product name: Microsoft WebDriver Product version 83.0.478.58 
         * Edge gets wordy when it's headless, but at least it's working (by setting window size)
         * At the time of this refactor for Selenium 4, Edge does not yet support the new API, so I'm using the legacy one"""  
         options = EdgeOptions()
         options.use_chromium = True          
         #EdgeOptions.AddArguments("headless")  # this version of selenium doesn't have addarguments for edge
-        options.headless = True # I got this to work by setting the handler window size  
+        #options.headless = True # I got this to work by setting the handler window size  
           
         try:        
             handler = Edge(executable_path=Path(self.handler_path +'msedgedriver.exe'), options = options)   
@@ -160,7 +167,7 @@ class WebPage():
         return handler # ignore the handshake errors  
 
 
-    def setUpsafari(self): # this Selenium (3) legacy API code works with both selenium 3 and selenium 4
+    def SetUpSafari(self): # this Selenium (3) legacy API code works with both selenium 3 and selenium 4
         try:
             handler = webdriver.Safari (executable_path=self.handler_path +'safaridriver')
             handler.maximize_window() # necessary for sendkeys to work           
@@ -172,7 +179,7 @@ class WebPage():
         return handler 
 
 
-    def setUpIE(self):
+    def SetUpIE(self):
         """Product name: Selenium WebDriver Product version: 2.42.0.0        
         IE does not have support for a headless mode
         IE has some other gotchas, too, which I posted in my blog. 
@@ -231,13 +238,14 @@ class WebPage():
     def find_dropdown(self):
         """See that we have a search suggestion dropdown"""
         logging.info(f"{datetime.now(tz=None)} Info Looking for search suggestion dropdown")  
+
         try:         
             elem=WebDriverWait(self.handler, 10).until(
                 EC.presence_of_element_located((By.XPATH, '//*[@id="search-6"]/form/div'))
             )    
             logging.info(f"{datetime.now(tz=None)} Info Found search suggestion dropdown")   
         except:  
-            logging.info(f"{datetime.now(tz=None)} Fail Search suggestion dropdown not found")    
+            logging.info(f"{datetime.now(tz=None)} Fail Search suggestion dropdown not found")    # failing here
             self.handler.quit()
             sys.exit(1)     
         return    
@@ -280,7 +288,8 @@ def main():
  
     running_platform = running_platform = platform.system()         
     if running_platform =="Windows":
-        browser_set = ["Chrome", "Firefox", "Edge","IE"]     
+        browser_set = [ "Firefox", "IE", "Edge", "Chrome"]    
+        browser_set = ["IE","Firefox"]   
         handler_path = "selenium_deps_windows/drivers/"             
     elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Firefox", "Safari", "Chrome"]    
