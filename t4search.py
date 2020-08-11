@@ -47,15 +47,14 @@ import os.path
 from os import path 
  
 class MainInterfacer():
-    def __init__(self, config, browse):
-        self.browse=browse
-
+    def __init__(self, config, browse):        
         self.initial_url = config["initial_url"]
         self.results_url = config["results_url"]
         self.keyword = config["keyword"]        
         self.running_platform=config["running_platform"]
         self.selenium_ver = config["selenium_ver"]
         self.handler_path = config["handler_path"]
+        self.browse=browse
 
         self.driverSelect = {
             "Chrome": self.SetUpChrome,          
@@ -64,7 +63,7 @@ class MainInterfacer():
             "IE": self.SetUpIE,
             "Safari": self.SetUpSafari
         }
-        self.handler = self.driverSelect[self.browse]() # Get Our Handler         
+        self.handler = self.driverSelect[self.browse]() # Go get Our Handler         
 
 
     def SetUpChrome(self):
@@ -83,7 +82,7 @@ class MainInterfacer():
             elif self.running_platform == "Windows":                  
                 handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path + 'chromedriver.exe')) 
 
-            else: # In case it's Unix
+            else: # In case it's Linux
                 handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path +'chromedriver'))    
             logging.info(f"{datetime.now(tz=None)} Info  {self.browse} browser handler found")  
         except (WebDriverException):
@@ -173,18 +172,10 @@ class MainInterfacer():
 class WebPage(MainInterfacer):            
 
     def __init__(self,config, browse):
-        super().__init__(config,browse) 
-        self.browse= browse        
-        self.initial_url = config["initial_url"]
-        self.results_url = config["results_url"]
-        self.keyword = config["keyword"]        
-        self.running_platform=config["running_platform"]
-        self.selenium_ver = config["selenium_ver"]
-        self.handler_path = config["handler_path"]
+        super().__init__(config,browse)          
         logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
          
-    def __repr__(self):
-        """This returns better information for the developer when he tries printing the instance"""
+    def __repr__(self):         
         return f"Initial URL is {self.initial_url}\nLanding URL is {self.results_url}"    
    
     def start_the_session(self): # This is where we load the website into the browser
@@ -248,7 +239,7 @@ class WebPage(MainInterfacer):
             sys.exit(1)  
         return    
 
-    def verify_results_url(self):    # might need a webdriverwait until in here because of firefox   
+    def verify_results_url(self):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""              
         time.sleep(4) # Need this for both Firefox and Safari
         if self.handler.current_url == self.results_url:              
