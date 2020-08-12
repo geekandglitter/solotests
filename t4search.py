@@ -22,7 +22,7 @@ from selenium.webdriver.support import expected_conditions as EC
 # Determine which platform 
 import platform 
 from os import path 
-from maininterfacer import MainInterfacer # MainInterfacer manages OS platforms
+from maininterfacer import MainInterfacer # The parent class of WebPage manages browser setup.
 
 class WebPage(MainInterfacer):            
 
@@ -92,7 +92,9 @@ class WebPage(MainInterfacer):
             logging.info(f"{datetime.now(tz=None)} Fail {self.browse} Search suggestions not found")    
             self.handler.quit()
             sys.exit(1)  
-        return    
+        return   
+
+         
 
     def verify_results_url(self):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""              
