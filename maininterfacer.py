@@ -19,7 +19,7 @@ from selenium.webdriver.safari.service import Service
 from selenium.webdriver.ie.service import Service
 # Determine which platform
 from pathlib2 import Path # this module lets us consolidate paths across platforms
-from os import path 
+ 
 
 class MainInterfacer():
     def __init__(self, config, browse):        
@@ -59,7 +59,7 @@ class MainInterfacer():
 
             else: # In case it's Linux
                 handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path +'chromedriver'))    
-            logging.info(f"{datetime.now(tz=None)} Info  {self.browse} browser handler found")  
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")  
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Warning  {self.browse} browser handler not found or failed to launch.")  
             handler = None  
@@ -142,4 +142,3 @@ class MainInterfacer():
             logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
             handler = None      
         return handler    
-
