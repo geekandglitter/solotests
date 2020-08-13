@@ -16,15 +16,13 @@ import requests
 from selenium import webdriver # The webdriver class connects to the browser's instance
 from selenium.webdriver.common.keys import Keys  # The Keys class lets you emulate the stroke of keyboard keys
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
  
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC 
 import platform # To determne which OS platform we're running on
-
 from maininterfacer import MainInterfacer # The parent class of WebPage manages browser setup.
  
-
+ 
 
 
 
