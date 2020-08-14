@@ -1,3 +1,4 @@
+#!
 # System and Module Imports
 import logging
 from datetime import datetime
@@ -22,6 +23,11 @@ from pathlib2 import Path # this module lets us consolidate paths across platfor
  
 
 class MainInterfacer():
+    """ Parent class for selenium webdriver scripts. It does the handler setup based on three factors:
+    1. Browser (Firefox, IE, Safari, Edge, Chrome)
+    2. Selenium version (could be Selenium 3 or the Selenium 4 beta)
+    3. OS Platofrm (Mac, Windows or Linux)
+    """
     def __init__(self, config, browse):        
         self.initial_url = config["initial_url"]
         self.results_url = config["results_url"]
