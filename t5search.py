@@ -1,3 +1,4 @@
+#!
 # Explanation of delays:
 # Implicit waits are used to provide a default waiting time between each consecutive test step/command across the entire test script. 
 # Thus, the subsequent test step would only execute when the specified amount of time has elapsed after executing the previous test step/command.
@@ -89,10 +90,7 @@ def main():
     2. Locate the dropdown
     3. Find a search suggestion in the dropdown 
     """
-
-    logging.basicConfig(filename='t5search.log', level=logging.INFO)     
-    logging.info('\n')       
- 
+       
     running_platform = platform.system()    # Which OS are we running on?     
     if running_platform =="Windows":
         browser_set = [ "Firefox", "IE", "Edge", "Chrome"] 
@@ -102,18 +100,22 @@ def main():
         handler_path = "selenium_deps_mac/drivers/"        
     elif running_platform =="Linux":   
         browser_set=["Firefox", "Chrome"]
-        handler_path = "selenium_deps_linux/drivers/"      
-    
+        handler_path = "selenium_deps_linux/drivers/"
+    sel_version = (sys.modules[webdriver.__package__].__version__)[0]
     config = {
-            "initial_url": "https://solosegment.com/",
-            "results_url": "https://solosegment.com/?s=s",
-            "keyword": "s",
-            "browser_set": browser_set,            # browser_set depends on which OS is runnng
-            "running_platform": platform.system(),            
-            "selenium_ver": (sys.modules[webdriver.__package__].__version__)[0],   # detect the version of selenium
-            "handler_path": handler_path                
-    }   
-        
+        "initial_url": "https://solosegment.com/",
+        "results_url": "https://solosegment.com/?s=s",
+        "keyword": "s",
+        "browser_set": browser_set,            # browser_set depends on which OS is runnng
+        "running_platform": running_platform ,            
+        "selenium_ver":sel_version,   # detect the version of selenium
+        "handler_path": handler_path                
+    } 
+
+    logging.basicConfig(filename='t5search.log', level=logging.INFO)   
+    logging.info(f"{datetime.now(tz=None)} Info Selenium Version: {sel_version}")        
+    logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
+    
     for browse in browser_set:                 # we are instantiating a new object each time we start a new browser  
         web_page = WebPage(config, browse)              
         if web_page.handler == None: continue # If the browser handler isn't found, go on to the next browser           
