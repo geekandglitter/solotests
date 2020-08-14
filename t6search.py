@@ -1,3 +1,4 @@
+#!
 import logging
 import sys
 from datetime import datetime
@@ -10,6 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
 import platform # To determne which OS platform we're running on
 from maininterfacer import MainInterfacer # The parent class of WebPage manages browser setup.
+import time
  
 
 
@@ -77,7 +79,7 @@ class WebPage(MainInterfacer):
 
     def verify_results_url(self):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""              
-         
+        time.sleep(4) # Need this for both Firefox and Safari 
         logging.info(f"{datetime.now(tz=None)} Info {self.browse} Checking the results URL")
         if self.handler.current_url == self.results_url:              
             logging.info(f"{datetime.now(tz=None)} {self.browse} Pass")  
@@ -97,11 +99,9 @@ def main():
     2. Locate the dropdown
     3. Find a search suggestion in the dropdown 
     """
-
-    logging.basicConfig(filename='t6search.log', level=logging.INFO)     
-    logging.info('\n')       
  
-    running_platform = platform.system()    # Which OS are we running on?     
+    sel_version = (sys.modules[webdriver.__package__].__version__)[0]   
+    running_platform = platform.system()    # Which OS are we running on?       
     if running_platform =="Windows":
         browser_set = ["Firefox", "Chrome", "IE", "Edge"] 
         handler_path = "selenium_deps_windows/drivers/"             
@@ -120,8 +120,12 @@ def main():
             "running_platform": platform.system(),            
             "selenium_ver": (sys.modules[webdriver.__package__].__version__)[0],   # detect the version of selenium
             "handler_path": handler_path                
-    }   
-        
+    } 
+     
+    logging.basicConfig(filename='t6search.log', level=logging.INFO) 
+    logging.info('\n')  
+    logging.info(f"{datetime.now(tz=None)} Info Selenium Version: {sel_version}")        
+    logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
     for browse in browser_set:                 # we are instantiating a new object each time we start a new browser  
         web_page = WebPage(config, browse)              
         if web_page.handler == None: continue # If the browser handler isn't found, go on to the next browser           
@@ -130,7 +134,7 @@ def main():
         web_page.simulate_search_icon("search box for ICON simulation", xpath='//*[@id="search-6"]/form/label/input' )           
         web_page.verify_results_url()     
         web_page.tear_down()  
-    logging.info('\n')
+    
         
 if __name__ == "__main__":
     main()
