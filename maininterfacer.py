@@ -138,9 +138,11 @@ class MainInterfacer():
                 # for IE, we use the IEDriverServer which might be why it redirects (see log)
                 service = Service(Path(self.handler_path +'IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
                 handler = webdriver.Ie(service=service)  
-                logging.info(f"{datetime.now(tz=None)} Info {self.browse} Finished handler setup")                  
+                logging.info(f"{datetime.now(tz=None)} Info {self.browse} Finished handler setup")            
+                       
             else:
-                handler = webdriver.Ie(executable_path = Path(self.handler_path +'IEDriverServer.exe') )                
+                handler = webdriver.Ie(executable_path = Path(self.handler_path +'IEDriverServer.exe') )  
+                              
              
             handler.maximize_window()
             logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found") 
