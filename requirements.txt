@@ -1,6 +1,9 @@
+
+# Note about selenium: the older one is the legacy version. The newer one is still in beta.
+# Using this requirements.txt, pip will install the beta version. If you want the legacy verison, swap the next two lines
 selenium==3.141.0
+selenium==4.0.0a6.post2
 msedge-selenium-tools==3.141.2
 pathlib2==2.3.5 
 requests==2.24.0
-selenium==4.0.0a6.post2
 urllib3==1.25.10
