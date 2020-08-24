@@ -10,12 +10,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
 import platform # To determne which OS platform we're running on
-from maininterfacer import MainInterfacer # The parent class of WebPage manages browser setup.
+from maininterfacer import MainInterfacer # Maininterfacer is the base class of WebPage. It manages browser setup.
 import time
  
 
 
-class WebPage(MainInterfacer):            
+class WebPage(MainInterfacer):       # This is the derived class     
 
     def __init__(self,config, browse):
         super().__init__(config,browse)          
@@ -37,7 +37,7 @@ class WebPage(MainInterfacer):
             logging.info(f"{datetime.now(tz=None)} Fail {self.browse} URL {self.initial_url} not found. Process terminated")    
             self.handler.quit()
             sys.exit(1)  
-        import selenium
+        
     
     def simulate_search_enter(self, message, xpath):
         """Find the search box and type in a single keyword which will force a dropdown"""
