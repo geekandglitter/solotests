@@ -21,13 +21,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
 import platform # To determne which OS platform we're running on
-from maininterfacer import MainInterfacer # The parent class of WebPage manages browser setup.
+from maininterfacer import MainInterfacer # Maininterfacer is the base class of WebPage. It manages browser setup.
  
  
 
 
 
-class WebPage(MainInterfacer):            
+class WebPage(MainInterfacer):     # This is the derived class       
 
     def __init__(self,config, browse):
         super().__init__(config,browse)          
@@ -49,7 +49,7 @@ class WebPage(MainInterfacer):
             logging.info(f"{datetime.now(tz=None)} Fail {self.browse} URL {self.initial_url} not found. Process terminated")    
             self.handler.quit()
             sys.exit(1)  
-        import selenium
+        
     
     def simulation(self, message, xpath):
         """Find the search box and type in a single keyword which will force a dropdown"""
@@ -90,7 +90,7 @@ def main():
     2. Locate the dropdown
     3. Find a search suggestion in the dropdown 
     """
-       
+    sel_version = (sys.modules[webdriver.__package__].__version__)[0] 
     running_platform = platform.system()    # Which OS are we running on?     
     if running_platform =="Windows":
         browser_set = [ "Firefox", "IE", "Edge", "Chrome"] 
@@ -101,7 +101,7 @@ def main():
     elif running_platform =="Linux":   
         browser_set=["Firefox", "Chrome"]
         handler_path = "selenium_deps_linux/drivers/"
-    sel_version = (sys.modules[webdriver.__package__].__version__)[0]
+    
     config = {
         "initial_url": "https://solosegment.com/",
         "results_url": "https://solosegment.com/?s=s",
@@ -111,8 +111,9 @@ def main():
         "selenium_ver":sel_version,   # detect the version of selenium
         "handler_path": handler_path                
     } 
-
-    logging.basicConfig(filename='t5search.log', level=logging.INFO)   
+    
+    logging.basicConfig(filename='t5search.log', level=logging.INFO)  
+    logging.info('\n') 
     logging.info(f"{datetime.now(tz=None)} Info Selenium Version: {sel_version}")        
     logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
     
@@ -125,7 +126,7 @@ def main():
         web_page.simulation("search suggestions", xpath='//*[@id="search-6"]/form/div/ul') # find search suggestions          
         web_page.verify_results_url()     
         web_page.tear_down()  
-    logging.info('\n')
+    
         
 if __name__ == "__main__":
     main()
