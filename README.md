@@ -1,11 +1,11 @@
 # solotests
 Selenium playback testing 
 
-Browser compatability testing for solosegment.com using Selenium playback
+Browser compatability testing for solosegment.com using Selenium playback. Uses t6search and t5search only. Ignore the others
 
 t6search.py: runs the two original searches which are search enter and search icon
 t5search.py: runs the three newer searchs which are simulate keyword entry, find dropdown, and find search suggestions
-maininterfacer.py: the parent class that manages handler setup based on running browser, running platform, and selenium version
+maininterfacer.py: the base class that manages handler setup based on running browser, running platform, and selenium version
 note: on MacOS, since Catalina update, notarization has made driver setup a little more complex. See their documentation for more information
 
  
