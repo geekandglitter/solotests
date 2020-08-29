@@ -11,19 +11,19 @@ try:
     from msedge.selenium_tools import Edge, EdgeOptions
 except:
     pass 
-from selenium.webdriver.chrome import service
-# browser Imports for Selenium 4
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.edge.service import Service # couldn't get Service to work for Edge
-from selenium.webdriver.safari.service import Service  
-from selenium.webdriver.ie.service import Service
-# Determine which platform
-from pathlib2 import Path # this module lets us consolidate paths across platforms
  
+# browser Imports for Selenium 4
+from selenium.webdriver.firefox.service import Service as F_Service
+from selenium.webdriver.chrome.service import Service as C_Service
+from selenium.webdriver.edge.service import Service as E_Service # couldn't get Service to work for Edge
+from selenium.webdriver.safari.service import Service as S_Service
+from selenium.webdriver.ie.service import Service as IE_Service
+# Determine which platform
+ 
+import os 
 
 class MainInterfacer():
-    """ Parent class for selenium webdriver scripts. It does the handler setup based on three factors:
+    """ Base class for selenium webdriver scripts. It does the handler setup based on three factors:
     1. Browser (Firefox, IE, Safari, Edge, Chrome)
     2. Selenium version (could be Selenium 3 or the Selenium 4 beta)
     3. OS Platofrm (Mac, Windows or Linux)
@@ -58,16 +58,17 @@ class MainInterfacer():
             if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Chrome(options=options, executable_path=self.handler_path + 'chromedriver')   
             elif self.running_platform == "Windows" and self.selenium_ver == "4": # If it's Windows, then check selenium version                
-                service = Service(Path(self.handler_path + 'chromedriver.exe')) # Specify the custom path new for Selenium 4                            
+                service = C_Service(os.path.join(self.handler_path, 'chromedriver.exe')) # Specify the custom path new for Selenium 4                            
+                 
                 handler = webdriver.Chrome(options=options, service=service)                    
             elif self.running_platform == "Windows":                  
-                handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path + 'chromedriver.exe')) 
+                handler = webdriver.Chrome(options=options,executable_path=os.path.join(self.handler_path, 'chromedriver.exe')) 
 
             else: # In case it's Linux
-                handler = webdriver.Chrome(options=options,executable_path=Path(self.handler_path +'chromedriver'))    
+                handler = webdriver.Chrome(options=options,executable_path=os.path.join(self.handler_path, 'chromedriver'))    
             logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning  {self.browse} browser handler not found or failed to launch.")  
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")  
             handler = None  
         return handler         
 
@@ -83,12 +84,14 @@ class MainInterfacer():
             if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Firefox(options=options,executable_path= self.handler_path +'geckodriver')  
             elif self.running_platform == "Windows" and self.selenium_ver == "4": # If it's Windows, then check selenium version
-                service = Service(Path(self.handler_path +'geckodriver.exe')) # Specify the custom path (new for Selenium 4)                
+                
+                service = F_Service(os.path.join(self.handler_path, 'geckodriver.exe')) # Specify the custom path (new for Selenium 4)                
+                 
                 handler = webdriver.Firefox(options=options, service=service)               
             elif self.running_platform == "Windows":     
-                handler = webdriver.Firefox(options=options,executable_path=Path(self.handler_path +'geckodriver.exe')  )
+                handler = webdriver.Firefox(options=options,executable_path=os.path.join(self.handler_path, 'geckodriver.exe')  )
             else: # In case it's Unix
-                handler = webdriver.Firefox(options=options,executable_path=Path(self.handler_path +'geckodriver')  )      
+                handler = webdriver.Firefox(options=options,executable_path=os.path.join(self.handler_path,'geckodriver')  )      
             logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")             
         except (WebDriverException):
             logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
@@ -106,7 +109,7 @@ class MainInterfacer():
         options.headless = True # I got this to work by setting the handler window size  
           
         try:        
-            handler = Edge(executable_path=Path(self.handler_path +'msedgedriver.exe'), options = options)   
+            handler = Edge(executable_path=os.path.join(self.handler_path, 'msedgedriver.exe'), options = options)   
             handler.set_window_size(1600, 1200)  # set the browser handler window size so that headless will work with sendkeys   
             logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")     
         except (WebDriverException):
@@ -136,12 +139,12 @@ class MainInterfacer():
         try:  
             if self.selenium_ver == "4":
                 # for IE, we use the IEDriverServer which might be why it redirects (see log)
-                service = Service(Path(self.handler_path +'IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
+                service = IE_Service(os.path.join(self.handler_path, 'IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
                 handler = webdriver.Ie(service=service)  
                 logging.info(f"{datetime.now(tz=None)} Info {self.browse} Finished handler setup")            
                        
             else:
-                handler = webdriver.Ie(executable_path = Path(self.handler_path +'IEDriverServer.exe') )  
+                handler = webdriver.Ie(executable_path = os.path.join(self.handler_path, 'IEDriverServer.exe') )  
                               
              
             handler.maximize_window()
