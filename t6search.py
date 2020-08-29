@@ -19,7 +19,7 @@ class WebPage(MainInterfacer):       # This is the derived class
 
     def __init__(self,config, browse):
         super().__init__(config,browse)          
-        logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
+        #logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
          
     def __repr__(self):         
         return f"Initial URL is {self.initial_url}\nLanding URL is {self.results_url}"    
@@ -123,7 +123,6 @@ def main():
     } 
      
     logging.basicConfig(filename='t6search.log', level=logging.INFO) 
-    logging.info('\n')  
     logging.info(f"{datetime.now(tz=None)} Info Selenium Version: {sel_version}")        
     logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
     for browse in browser_set:                 # we are instantiating a new object each time we start a new browser  
