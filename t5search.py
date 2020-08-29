@@ -7,20 +7,21 @@
 # Implicit Waits are not recommended
 
 # System and Module Imports
-
 import logging
 import sys
 from datetime import datetime
 import time
 import requests
+import platform # To determne which OS platform we're running on
+
 # Selenium Imports
 from selenium import webdriver # The webdriver class connects to the browser's instance
 from selenium.webdriver.common.keys import Keys  # The Keys class lets you emulate the stroke of keyboard keys
-from selenium.webdriver.common.by import By
- 
+from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
-import platform # To determne which OS platform we're running on
+
+# Relative imports
 from maininterfacer import MainInterfacer # Maininterfacer is the base class of WebPage. It manages browser setup.
  
  
@@ -31,7 +32,7 @@ class WebPage(MainInterfacer):     # This is the derived class
 
     def __init__(self,config, browse):
         super().__init__(config,browse)          
-        logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
+        #logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
          
     def __repr__(self):         
         return f"Initial URL is {self.initial_url}\nLanding URL is {self.results_url}"    
@@ -90,10 +91,10 @@ def main():
     2. Locate the dropdown
     3. Find a search suggestion in the dropdown 
     """
-    sel_version = (sys.modules[webdriver.__package__].__version__)[0] 
+    # Our Configs
     running_platform = platform.system()    # Which OS are we running on?     
     if running_platform =="Windows":
-        browser_set = [ "Firefox", "IE", "Edge", "Chrome"] 
+        browser_set = ["Firefox", "IE", "Edge", "Chrome"]         
         handler_path = "selenium_deps_windows/drivers/"             
     elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Firefox", "Safari", "Chrome"]    
@@ -101,6 +102,7 @@ def main():
     elif running_platform =="Linux":   
         browser_set=["Firefox", "Chrome"]
         handler_path = "selenium_deps_linux/drivers/"
+    sel_version = (sys.modules[webdriver.__package__].__version__)[0]     
     
     config = {
         "initial_url": "https://solosegment.com/",
@@ -111,9 +113,46 @@ def main():
         "selenium_ver":sel_version,   # detect the version of selenium
         "handler_path": handler_path                
     } 
+
+    """
+    #######################################
+    # Experiments with json
+    import json
+    config_str = json.dumps(config)
+    print(config_str)
+    print(type(config_str))    # string
+    config_dict = json.loads(config_str)
+    print(config_dict)
+    print(type(config_dict))   # dictionary
+    with open('data.txt', 'w') as outfile:
+        json.dump(config_str, outfile)
+    with open('data.txt') as json_file:
+        data = json.load(json_file) 
+    print(data) 
+    print(type(data))          # string
     
+
+    for stuff in config_dict:
+        print(stuff, config_dict[stuff])
+
+    for stuff in config_dict.values():
+        print(stuff)    
+
+  
+
+    sys.exit(1)  
+    ######################################## 
+
+    """
+
+
+
+
+
+    
+
+    # Our Logger
     logging.basicConfig(filename='t5search.log', level=logging.INFO)  
-    logging.info('\n') 
     logging.info(f"{datetime.now(tz=None)} Info Selenium Version: {sel_version}")        
     logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
     
