@@ -100,7 +100,7 @@ def main():
     3. Find a search suggestion in the dropdown 
     """
  
-    sel_version = (sys.modules[webdriver.__package__].__version__)[0]   
+    # Our Configs
     running_platform = platform.system()    # Which OS are we running on?       
     if running_platform =="Windows":
         browser_set = ["Firefox", "Chrome", "IE", "Edge"] 
@@ -111,6 +111,7 @@ def main():
     elif running_platform =="Linux":   
         browser_set=["Firefox", "Chrome"]
         handler_path = "selenium_deps_linux/drivers/"      
+    sel_version = (sys.modules[webdriver.__package__].__version__)[0]   
     
     config = {
             "initial_url": "https://solosegment.com/",
