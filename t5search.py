@@ -23,9 +23,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # Relative imports
 from maininterfacer import MainInterfacer # Maininterfacer is the base class of WebPage. It manages browser setup.
- 
- 
-
 
 
 class WebPage(MainInterfacer):     # This is the derived class       
@@ -94,7 +91,7 @@ def main():
     # Our Configs
     running_platform = platform.system()    # Which OS are we running on?     
     if running_platform =="Windows":
-        browser_set = ["Firefox", "IE", "Edge", "Chrome"]         
+        browser_set = ["Firefox", "IE", "Edge", "Chrome"]             
         handler_path = "selenium_deps_windows/drivers/"             
     elif running_platform =="Darwin": # Darwin is a mac
         browser_set=["Firefox", "Safari", "Chrome"]    
@@ -136,20 +133,12 @@ def main():
         print(stuff, config_dict[stuff])
 
     for stuff in config_dict.values():
-        print(stuff)    
-
-  
+        print(stuff)      
 
     sys.exit(1)  
     ######################################## 
 
-    """
-
-
-
-
-
-    
+    """    
 
     # Our Logger
     logging.basicConfig(filename='t5search.log', level=logging.INFO)  
