@@ -122,41 +122,26 @@ def main():
             "running_platform": platform.system(),            
             "selenium_ver": (sys.modules[webdriver.__package__].__version__)[0],   # detect the version of selenium
             "handler_path": handler_path                
-    } 
-
-
-    """
-    
+    }     
  
     import json
-    config_str = json.dumps(config)
-    print(config_str)
-    sys.exit(1)  
-    print(type(config_str))    # string
+    config_str = json.dumps(config)     
     config_dict = json.loads(config_str)
-    print(config_dict)
-    print(type(config_dict))   # dictionary
+    print(config_dict)    
+    
     with open('data.txt', 'w') as outfile:
         json.dump(config_str, outfile)
+        
     with open('data.txt') as json_file:
         data = json.load(json_file) 
-    print(data) 
-    print(type(data))          # string
-    
+    print(data)       
 
     for stuff in config_dict:
         print(stuff, config_dict[stuff])
 
     for stuff in config_dict.values():
-        print(stuff)      
-
-
-    
-"""
-
-
-
-
+        print(stuff)   
+    sys.exit(1)         
 
 
     # Our logger
