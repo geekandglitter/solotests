@@ -1,5 +1,5 @@
 
-## This project performs browser compatability testing for solosegment.com using Selenium playback.  
+### This project performs browser compatability testing for solosegment.com using Selenium playback.  
 ### Notes
  
 1. They work on Selenium 3 and Selenium 4 
@@ -21,4 +21,5 @@
 11. To get started with selenium: https://pypi.org/project/selenium/4.0.0a6.post1/
 12. Webdriver support for Safari: https://webkit.org/blog/6900/webdriver-support-in-safari-10/ 
 13. The drivers supplied here are the ones used by the developer. Choose the webdriver to match each browser for each OS platform.
+14. See my blog post https://speakingpython.blogspot.com/2020/08/managing-selenium-webdrivers-for-all.html for considerations specific to OS platform and browser selection. This blog also contains more general findings as well.
  
