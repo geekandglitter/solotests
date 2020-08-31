@@ -1,6 +1,5 @@
-# solotests
 
-# This project performs browser compatability testing for solosegment.com using Selenium playback.  
+## This project performs browser compatability testing for solosegment.com using Selenium playback.  
 ### Notes
  
 1. They work on Selenium 3 and Selenium 4 
