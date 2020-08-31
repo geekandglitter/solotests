@@ -28,7 +28,10 @@ from maininterfacer import MainInterfacer # Maininterfacer is the base class of 
 class WebPage(MainInterfacer):     # This is the derived class       
 
     def __init__(self,config, browse):
-        super().__init__(config,browse)          
+        super().__init__(config,browse)     
+        self.initial_url="https://solosegment.com/"
+        self.results_url="https://solosegment.com/?s=solo_search"
+        self.keyword= "solo_search"        
         #logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
          
     def __repr__(self):         
@@ -102,43 +105,14 @@ def main():
     sel_version = (sys.modules[webdriver.__package__].__version__)[0]     
     
     config = {
-        "initial_url": "https://solosegment.com/",
-        "results_url": "https://solosegment.com/?s=s",
-        "keyword": "s",
+         
         "browser_set": browser_set,            # browser_set depends on which OS is runnng
         "running_platform": running_platform ,            
         "selenium_ver":sel_version,   # detect the version of selenium
         "handler_path": handler_path                
     } 
 
-    """
-    #######################################
-    # Experiments with json
-    import json
-    config_str = json.dumps(config)
-    print(config_str)
-    print(type(config_str))    # string
-    config_dict = json.loads(config_str)
-    print(config_dict)
-    print(type(config_dict))   # dictionary
-    with open('data.txt', 'w') as outfile:
-        json.dump(config_str, outfile)
-    with open('data.txt') as json_file:
-        data = json.load(json_file) 
-    print(data) 
-    print(type(data))          # string
     
-
-    for stuff in config_dict:
-        print(stuff, config_dict[stuff])
-
-    for stuff in config_dict.values():
-        print(stuff)      
-
-    sys.exit(1)  
-    ######################################## 
-
-    """    
 
     # Our Logger
     logging.basicConfig(filename='t5search.log', level=logging.INFO)  
