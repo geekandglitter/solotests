@@ -66,9 +66,9 @@ class MainInterfacer():
 
             else: # In case it's Linux
                 handler = webdriver.Chrome(options=options,executable_path=os.path.join(self.handler_path, 'chromedriver'))    
-            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")  
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Browser handler found")  
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")  
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} Browser handler not found or failed to launch.")  
             handler = None  
         return handler         
 
@@ -92,9 +92,9 @@ class MainInterfacer():
                 handler = webdriver.Firefox(options=options,executable_path=os.path.join(self.handler_path, 'geckodriver.exe')  )
             else: # In case it's Unix
                 handler = webdriver.Firefox(options=options,executable_path=os.path.join(self.handler_path,'geckodriver')  )      
-            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")             
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Browser handler found")             
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} Browser handler not found or failed to launch.")    
             handler = None    
         return handler            
                 
@@ -111,9 +111,9 @@ class MainInterfacer():
         try:        
             handler = Edge(executable_path=os.path.join(self.handler_path, 'msedgedriver.exe'), options = options)   
             handler.set_window_size(1600, 1200)  # set the browser handler window size so that headless will work with sendkeys   
-            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found")     
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Browser handler found")     
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} Browser handler not found or failed to launch.")    
             handler = None                       
         return handler # ignore the handshake errors  
 
@@ -123,9 +123,9 @@ class MainInterfacer():
             handler = webdriver.Safari (executable_path=self.handler_path +'safaridriver')
             handler.maximize_window() # necessary for sendkeys to work           
             logging.info
-            (f"{datetime.now(tz=None)} Info {self.browse} browser handler found")
+            (f"{datetime.now(tz=None)} Info {self.browse} Browser handler found")
         except:
-            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} Browser handler not found or failed to launch.")    
             handler = None      
         return handler 
 
@@ -148,8 +148,8 @@ class MainInterfacer():
                               
              
             handler.maximize_window()
-            logging.info(f"{datetime.now(tz=None)} Info {self.browse} browser handler found") 
+            logging.info(f"{datetime.now(tz=None)} Info {self.browse} Browser handler found") 
         except (WebDriverException):
-            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} browser handler not found or failed to launch.")    
+            logging.info(f"{datetime.now(tz=None)} Warning {self.browse} Browser handler not found or failed to launch.")    
             handler = None      
         return handler    
