@@ -29,9 +29,9 @@ class MainInterfacer():
     3. OS Platofrm (Mac, Windows or Linux)
     """
     def __init__(self, config, browse):        
-        self.initial_url = config["initial_url"]
-        self.results_url = config["results_url"]
-        self.keyword = config["keyword"]        
+        #self.initial_url = config["initial_url"]
+        #self.results_url = config["results_url"]
+        #self.keyword = config["keyword"]        
         self.running_platform=config["running_platform"]
         self.selenium_ver = config["selenium_ver"]
         self.handler_path = config["handler_path"]
