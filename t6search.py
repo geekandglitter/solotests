@@ -130,8 +130,8 @@ def main():
         web_page = WebPage(config, browse)              
         if web_page.handler == None: continue # If the browser handler isn't found, go on to the next browser           
         web_page.start_the_session()          # start the session we want to test, then simulate keyword entry
-        web_page.simulate_search_enter("search box for ENTER simulation", xpath='//*[@id="search-6"]/form/label/input') 
-        web_page.simulate_search_icon("search box for ICON simulation", xpath='//*[@id="search-6"]/form/label/input' )           
+        web_page.simulate_search_enter("Search box for ENTER simulation", xpath='//*[@id="search-6"]/form/label/input') 
+        web_page.simulate_search_icon("Search box for ICON simulation", xpath='//*[@id="search-6"]/form/label/input' )           
         web_page.verify_results_url()     
         web_page.tear_down()  
     
