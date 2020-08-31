@@ -18,7 +18,10 @@ import time
 class WebPage(MainInterfacer):       # This is the derived class     
 
     def __init__(self,config, browse):
-        super().__init__(config,browse)          
+        super().__init__(config,browse)  
+        self.initial_url="https://solosegment.com/"
+        self.results_url="https://solosegment.com/?s=solo_search"
+        self.keyword= "solo_search"      
         #logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
          
     def __repr__(self):         
@@ -114,18 +117,53 @@ def main():
     sel_version = (sys.modules[webdriver.__package__].__version__)[0]   
     
     config = {
-            "initial_url": "https://solosegment.com/",
-            "results_url": "https://solosegment.com/?s=solo_search",
-            "keyword": "solo_search",
+            
             "browser_set": browser_set,            # browser_set depends on which OS is runnng
             "running_platform": platform.system(),            
             "selenium_ver": (sys.modules[webdriver.__package__].__version__)[0],   # detect the version of selenium
             "handler_path": handler_path                
     } 
-     
+
+
+    """
+    
+ 
+    import json
+    config_str = json.dumps(config)
+    print(config_str)
+    sys.exit(1)  
+    print(type(config_str))    # string
+    config_dict = json.loads(config_str)
+    print(config_dict)
+    print(type(config_dict))   # dictionary
+    with open('data.txt', 'w') as outfile:
+        json.dump(config_str, outfile)
+    with open('data.txt') as json_file:
+        data = json.load(json_file) 
+    print(data) 
+    print(type(data))          # string
+    
+
+    for stuff in config_dict:
+        print(stuff, config_dict[stuff])
+
+    for stuff in config_dict.values():
+        print(stuff)      
+
+
+    
+"""
+
+
+
+
+
+
+    # Our logger
     logging.basicConfig(filename='t6search.log', level=logging.INFO) 
     logging.info(f"{datetime.now(tz=None)} Info Selenium Version: {sel_version}")        
     logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
+
     for browse in browser_set:                 # we are instantiating a new object each time we start a new browser  
         web_page = WebPage(config, browse)              
         if web_page.handler == None: continue # If the browser handler isn't found, go on to the next browser           
