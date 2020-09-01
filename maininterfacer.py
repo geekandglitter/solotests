@@ -21,6 +21,8 @@ from selenium.webdriver.ie.service import Service as IE_Service
 # Determine which platform
  
 import os 
+import json
+import sys
 
 class MainInterfacer():
     """ Base class for selenium webdriver scripts. It does the handler setup based on three factors:
@@ -28,13 +30,15 @@ class MainInterfacer():
     2. Selenium version (could be Selenium 3 or the Selenium 4 beta)
     3. OS Platofrm (Mac, Windows or Linux)
     """
-    def __init__(self, config, browse):        
-        #self.initial_url = config["initial_url"]
-        #self.results_url = config["results_url"]
-        #self.keyword = config["keyword"]        
-        self.running_platform=config["running_platform"]
-        self.selenium_ver = config["selenium_ver"]
-        self.handler_path = config["handler_path"]
+    def __init__(self, browse, sel_ver, running_platform):  
+        with open('test_config.txt') as json_file:
+            data = json.load(json_file) 
+        config = json.loads(data)    
+                       
+        config [running_platform]["browser_set"]      
+        self.running_platform=running_platform
+        self.sel_ver = sel_ver
+        self.handler_path = config[running_platform]["handler_path"]
         self.browse=browse
 
         self.driverSelect = {
@@ -57,7 +61,7 @@ class MainInterfacer():
         try:   
             if self.running_platform == "Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Chrome(options=options, executable_path=self.handler_path + 'chromedriver')   
-            elif self.running_platform == "Windows" and self.selenium_ver == "4": # If it's Windows, then check selenium version                
+            elif self.running_platform == "Windows" and self.sel_ver == "4": # If it's Windows, then check selenium version                
                 service = C_Service(os.path.join(self.handler_path, 'chromedriver.exe')) # Specify the custom path new for Selenium 4                            
                  
                 handler = webdriver.Chrome(options=options, service=service)                    
@@ -83,7 +87,7 @@ class MainInterfacer():
         try:
             if self.running_platform=="Darwin": # If it's a mac, then use the old API code regardless of Selenium version
                 handler = webdriver.Firefox(options=options,executable_path= self.handler_path +'geckodriver')  
-            elif self.running_platform == "Windows" and self.selenium_ver == "4": # If it's Windows, then check selenium version
+            elif self.running_platform == "Windows" and self.sel_ver == "4": # If it's Windows, then check selenium version
                 
                 service = F_Service(os.path.join(self.handler_path, 'geckodriver.exe')) # Specify the custom path (new for Selenium 4)                
                  
@@ -137,7 +141,7 @@ class MainInterfacer():
         See https://speakingpython.blogspot.com/2020/07/working-with-selenium-webdriver-in.html
         """    
         try:  
-            if self.selenium_ver == "4":
+            if self.sel_ver == "4":
                 # for IE, we use the IEDriverServer which might be why it redirects (see log)
                 service = IE_Service(os.path.join(self.handler_path, 'IEDriverServer.exe')) # Specify the custom path (new for Selenium 4)  
                 handler = webdriver.Ie(service=service)  
