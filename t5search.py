@@ -27,8 +27,8 @@ from maininterfacer import MainInterfacer # Maininterfacer is the base class of 
 
 class WebPage(MainInterfacer):     # This is the derived class       
 
-    def __init__(self,config, browse):
-        super().__init__(config,browse)     
+    def __init__(self, browse):
+        super().__init__(browse)     
         self.initial_url="https://solosegment.com/"
         self.results_url="https://solosegment.com/?s=solo_search"
         self.keyword= "solo_search"        
@@ -112,7 +112,10 @@ def main():
         "handler_path": handler_path                
     } 
 
-    
+    import json
+    config_str = json.dumps(config)     
+    with open('data.txt', 'w') as outfile:
+        json.dump(config_str, outfile)
 
     # Our Logger
     logging.basicConfig(filename='t5search.log', level=logging.INFO)  
@@ -120,7 +123,7 @@ def main():
     logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
     
     for browse in browser_set:                 # we are instantiating a new object each time we start a new browser  
-        web_page = WebPage(config, browse)              
+        web_page = WebPage(browse)              
         if web_page.handler == None: continue # If the browser handler isn't found, go on to the next browser           
         web_page.start_the_session()          # start the session we want to test
         web_page.simulation("search box", xpath='//*[@id="search-6"]/form/label/input') # simulate keyword entry
