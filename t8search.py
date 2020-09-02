@@ -56,7 +56,7 @@ class WebPage(MainInterfacer):       # This is the derived class
             logging.info(f"{datetime.now(tz=None)} Fail {self.browse} {message} not found")    
             self.handler.quit()
             sys.exit(1)
-         
+        elem.click() 
         elem.send_keys(self.keyword)  
         elem.send_keys(Keys.ENTER)  
         return     
