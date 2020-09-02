@@ -29,9 +29,9 @@ class WebPage(MainInterfacer):     # This is the derived class
 
     def __init__(self, browse, sel_ver, running_platform):
         super().__init__(browse, sel_ver, running_platform)     
-        self.initial_url="https://solosegment.com/"
-        self.results_url="https://solosegment.com/?s=solo_search"
-        self.keyword= "solo_search"        
+        self.initial_url='https://solosegment.com/'
+        self.results_url='https://solosegment.com/?s=solo_search'
+        self.keyword= 'solo_search'    
         #logging.info(f"{datetime.now(tz=None)} Info {self.browse} Looking for browser handler")
          
     def __repr__(self):         
@@ -65,14 +65,15 @@ class WebPage(MainInterfacer):     # This is the derived class
             logging.info(f"{datetime.now(tz=None)} Fail {self.browse} {message} not found")    
             self.handler.quit()
             sys.exit(1)
-        if message == "search box":    
-            elem.send_keys(self.keyword)  
+        if message == "search box": 
+            elem.click() 
+            elem.send_keys(self.keyword) 
             elem.send_keys(Keys.ENTER)  
         return         
 
     def verify_results_url(self):       
         """Check on correct url which is https://solosegment.com/?s=solosegment_monitoring_test"""              
-        time.sleep(4) # Need this for both Firefox and 
+        time.sleep(10) # Need this for Firefox   
         logging.info(f"{datetime.now(tz=None)} Info {self.browse} Checking the results URL")
         if self.handler.current_url == self.results_url:              
             logging.info(f"{datetime.now(tz=None)} {self.browse} Pass")  
@@ -105,8 +106,8 @@ def main():
     logging.info(f"{datetime.now(tz=None)} Info Platform Running: {running_platform}")
     
 
-
-    for browser_select in  config [running_platform]["browser_set"]:                 # we are instantiating a new object each time we start a new browser  
+    #temp = "ie"
+    for browser_select in  config [running_platform]["browser_set"]:   
                  
         web_page = WebPage(browser_select, sel_ver, running_platform)              
         if web_page.handler == None: continue # If the browser handler isn't found, go on to the next browser           
