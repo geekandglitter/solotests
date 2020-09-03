@@ -1,6 +1,7 @@
-"{\"Windows\": {\"browser_set\": [\"Firefox\", \"IE\", \"Edge\", \"Chrome\"], \"handler_path\": \"selenium_deps_windows/drivers/\"}, \"Darwin\": {\"browser_set\": [\"Firefox\", \"Safari\", \"Chrome\"], \"handler_path\": \"selenium_deps_mac/drivers/\"}, \"Linux\": {\"browser_set\": [\"Firefox\", \"Chrome\"], \"handler_path\": \"selenium_deps_linux/drivers}\"}}"
+"{\"Windows\": {\"browser_set\": [\"Firefox\", \"IE\", \"Edge\", \"Chrome\"], \"handler_path\": \"selenium_deps_windows/drivers/\"}, \"Darwin\": {\"browser_set\": [\"Firefox\", \"Safari\", \"Chrome\"], \"handler_path\": \"selenium_deps_mac/drivers/\"}, \"Linux\": {\"browser_set\": [\"Firefox\", \"Chrome\"], \"handler_path\": \"selenium_deps_linux/drivers/\"}}"
 
 
 
 
- 
+
+
