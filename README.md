@@ -8,8 +8,8 @@
 4. This project is still under development, but is suitable for use "as is" and for repurposing
 5. The project files are:
 
-	- t7search.py
-	- t8search.py 
+	- t7search.py  (this is the one the developers expressed an interest it)
+	- t8search.py  (has been updated to be OOP)
     - maininterfacer.py
     - test_config.txt
     - three webdriver folders containing browser-based webdrivers used by the developer
