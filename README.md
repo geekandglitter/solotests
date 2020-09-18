@@ -14,8 +14,8 @@
     - test_config.txt
     - three webdriver folders containing browser-based webdrivers used by the developer
 
-6. t5search.py runs three searches: simulate keyword entry, find dropdown, and find search suggestions
-7. t6search.py runs two searches: search enter and search icon
+6. t7search.py runs three searches: simulate keyword entry, find dropdown, and find search suggestions
+7. t8search.py runs two searches: search enter and search icon
 8. maininterfacer.py: the base class that manages handler setup based on running browser, running platform, and selenium version
 9. test_config is the external config file
 10. On MacOS, since Catalina update, notarization has made driver setup a little more complex. See their documentation for more information
